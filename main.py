@@ -49,7 +49,7 @@ def hello_world():
     return "Hello World!"
 
 
-@app.get("/funsar/", timeout=timedelta(seconds=600))
+@app.get("/funsar/")
 async def transform_file():
     consuming_start_time = time.perf_counter()
     res = FunasrService("asr_example.wav").transform()
@@ -73,7 +73,7 @@ async def transform_file():
     )
 
 
-@app.post("/funsar/file/", timeout=timedelta(seconds=600))
+@app.post("/funsar/file/")
 async def create_file(file: bytes = File()):
     # 获取文件内容
     # 打开文件以写入模式
@@ -119,7 +119,7 @@ async def create_file(file: bytes = File()):
         return {"error": str(e)}
 
 
-@app.post("/funsar/uploadfile/", timeout=timedelta(seconds=600))
+@app.post("/funsar/uploadfile/")
 async def create_upload_file(file: UploadFile):
     try:
         consuming_start_time = time.perf_counter()
