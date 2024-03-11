@@ -1,0 +1,5 @@
+myvenv/
+.vscode
+__pycache__
+*.MP3
+*.wav
