@@ -7,12 +7,15 @@ import random
 import shutil
 import threading
 import time
+import requests
+import asyncio
 
 import pydantic
 import uvicorn
 from fastapi import Body, FastAPI, File, UploadFile
 from funasr_service import FunasrService
 from pydantic import BaseModel
+from funasr.download.file import download_from_url
 
 logger = logging.getLogger()
 app = FastAPI()
@@ -41,7 +44,7 @@ def generate_random_filename():
     timestamp = int(time.time())  # 获取当前时间戳
     random_number = random.randint(1000, 9999)  # 生成一个随机数
     filename = f"file_{timestamp}_{random_number}"  # 创建文件名
-    return filename+".wav"
+    return filename + ".wav"
 
 
 @app.get("/")
@@ -49,7 +52,7 @@ def hello_world():
     return "Hello World!"
 
 
-@app.get("/funsar/")
+@app.get("/funasr/")
 async def transform_file():
     consuming_start_time = time.perf_counter()
     res = FunasrService("asr_example.wav").transform()
@@ -57,14 +60,14 @@ async def transform_file():
     answer = []
     print(str(res[0]["sentence_info"]))
     for one in res[0]["sentence_info"]:
-        start_time=one['start']
-        end_time=one['end']
+        start_time = one['start']
+        end_time = one['end']
         answer.append(
-            f'{"角色1" if one["spk"] == 0 else "角色2"} : {one["text"]} -- 时长:{end_time-start_time}ms'
+            f'{"角色1" if one["spk"] == 0 else "角色2"} : {one["text"]} -- 时长:{end_time - start_time}ms'
         )
     consuming_end_time = time.perf_counter()
-    print(f"Function transform_file executed in { (consuming_end_time - consuming_start_time)} 秒")
-    logger.info(f"Function transform_file executed in { (consuming_end_time - consuming_start_time)} 秒")
+    print(f"Function transform_file executed in {(consuming_end_time - consuming_start_time)} 秒")
+    logger.info(f"Function transform_file executed in {(consuming_end_time - consuming_start_time)} 秒")
     return BaseResponse(
         code=200,
         msg=res[0]["text"],
@@ -73,7 +76,7 @@ async def transform_file():
     )
 
 
-@app.post("/funsar/file/")
+@app.post("/funasr/file/")
 async def create_file(file: bytes = File()):
     # 获取文件内容
     # 打开文件以写入模式
@@ -99,27 +102,29 @@ async def create_file(file: bytes = File()):
         answer = []
         print(str(res[0]["sentence_info"]))
         for one in res[0]["sentence_info"]:
-            start_time=one['start']
-            end_time=one['end']
+            start_time = one['start']
+            end_time = one['end']
             answer.append(
-              f'{"角色1" if one["spk"] == 0 else "角色2"} : {one["text"]} -- 时长:{end_time-start_time}ms'
+                f'{"角色1" if one["spk"] == 0 else "角色2"} : {one["text"]} -- 时长:{end_time - start_time}ms'
             )
         consuming_end_time = time.perf_counter()
-        print(f"Function create_file executed in { (consuming_end_time - consuming_start_time)} 秒")
-        logger.info(f"Function create_file executed in { (consuming_end_time - consuming_start_time)} 秒")
+        print(f"Function create_file executed in {(consuming_end_time - consuming_start_time)} 秒")
+        logger.info(f"Function create_file executed in {(consuming_end_time - consuming_start_time)} 秒")
         os.remove(save_file)
-        return BaseResponse(
+        response = BaseResponse(
             code=200,
             msg=res[0]["text"],
             data=answer,
             time_consuming=int(consuming_end_time - consuming_start_time),
         )
+        print(f"response：{response}")
+        return response
     except Exception as e:
         os.remove(save_file)
         return {"error": str(e)}
 
 
-@app.post("/funsar/uploadfile/")
+@app.post("/funasr/uploadfile/")
 async def create_upload_file(file: UploadFile):
     try:
         consuming_start_time = time.perf_counter()
@@ -142,15 +147,15 @@ async def create_upload_file(file: UploadFile):
         answer = []
         print(str(res[0]["sentence_info"]))
         for one in res[0]["sentence_info"]:
-            start_time=one['start']
-            end_time=one['end']
+            start_time = one['start']
+            end_time = one['end']
             answer.append(
-                f'{"角色1" if one["spk"] == 0 else "角色2"} : {one["text"]} -- 时长:{end_time-start_time}ms'
+                f'{"角色1" if one["spk"] == 0 else "角色2"} : {one["text"]} -- 时长:{end_time - start_time}ms'
             )
         consuming_end_time = time.perf_counter()
-        print(f"Function create_upload_file executed in { (consuming_end_time - consuming_start_time)} 秒")
+        print(f"Function create_upload_file executed in {(consuming_end_time - consuming_start_time)} 秒")
         logger.info(
-            f"Function create_upload_file executed in { (consuming_end_time - consuming_start_time)} 秒"
+            f"Function create_upload_file executed in {(consuming_end_time - consuming_start_time)} 秒"
         )
         os.remove(save_file)
         return BaseResponse(
@@ -164,13 +169,45 @@ async def create_upload_file(file: UploadFile):
         return {"error": str(e)}
 
 
+def url_to_byte_stream(url):
+    # 发送HTTP请求获取文件内容
+    response = requests.get(url)
+
+    # 检查请求是否成功
+    if response.status_code == 200:
+        # 返回HTTP响应的内容
+        return response.content
+    else:
+        print(f"Failed to retrieve the file. Status code: {response.status_code}")
+        return None
+
+class UrlParam(BaseModel):
+    url: str
+
+@app.post("/funasr/url")
+async def create_url(param: UrlParam):
+    try:
+        url = param.url
+        print(f"url=={url}")
+        # file = download_from_url(url)
+        # print({f"file=={file}"})
+        asyncio.run(async_task(url))
+        return {"msg": "hello_world"}
+    except Exception as e:
+        return {"error": str(e)}
+
+async def async_task(url: str):
+    file_stream = url_to_byte_stream(url)
+    print("its ok")
+    asyncio.create_task(create_file(file_stream))
+
 if __name__ == "__main__":
-    save_path="./audio/"
+    save_path = "./audio/"
     if os.path.exists(save_path):
         shutil.rmtree(save_path)
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="0.0.0.0")
-    parser.add_argument("--port", type=int, default=7865)
+    parser.add_argument("--port", type=int, default=7888)
     args = parser.parse_args()
     uvicorn.run(
         app="main:app",
