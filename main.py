@@ -16,6 +16,7 @@ from fastapi import Body, FastAPI, File, UploadFile
 from funasr_service import FunasrService
 from pydantic import BaseModel
 from funasr.download.file import download_from_url
+import multiprocessing
 
 logger = logging.getLogger()
 app = FastAPI()
@@ -169,17 +170,16 @@ async def create_upload_file(file: UploadFile):
         return {"error": str(e)}
 
 
-def url_to_byte_stream(url):
-    # 发送HTTP请求获取文件内容
-    response = requests.get(url)
+def deal_worker(url):
+    """
+    要执行的函数，在子进程中运行
+    """
+    print(f"Worker {url} is running...")
+    # 解析音频
+    res = FunasrService(url).transform()
+    time.sleep(1)
+    print(f"Worker {url} finished.")
 
-    # 检查请求是否成功
-    if response.status_code == 200:
-        # 返回HTTP响应的内容
-        return response.content
-    else:
-        print(f"Failed to retrieve the file. Status code: {response.status_code}")
-        return None
 
 class UrlParam(BaseModel):
     url: str
@@ -187,19 +187,10 @@ class UrlParam(BaseModel):
 @app.post("/funasr/url")
 async def create_url(param: UrlParam):
     try:
-        url = param.url
-        print(f"url=={url}")
-        # file = download_from_url(url)
-        # print({f"file=={file}"})
-        asyncio.run(async_task(url))
-        return {"msg": "hello_world"}
+        process = multiprocessing.Process(target=deal_worker, args=(param.url))
+        process.start()
     except Exception as e:
         return {"error": str(e)}
-
-async def async_task(url: str):
-    file_stream = url_to_byte_stream(url)
-    print("its ok")
-    asyncio.create_task(create_file(file_stream))
 
 if __name__ == "__main__":
     save_path = "./audio/"
