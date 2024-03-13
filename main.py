@@ -174,21 +174,40 @@ def deal_worker(url):
     """
     要执行的函数，在子进程中运行
     """
+    consuming_start_time = time.perf_counter()
     print(f"Worker {url} is running...")
     # 解析音频
     res = FunasrService(url).transform()
-    time.sleep(1)
+    answer = []
+    print(str(res[0]["sentence_info"]))
+    for one in res[0]["sentence_info"]:
+        start_time = one['start']
+        end_time = one['end']
+        answer.append(
+            f'{"角色1" if one["spk"] == 0 else "角色2"} : {one["text"]} -- 时长:{end_time - start_time}ms'
+        )
+    consuming_end_time = time.perf_counter()
+    print(f"Function create_upload_file executed in {(consuming_end_time - consuming_start_time)} 秒")
+    logger.info(
+        f"Function create_upload_file executed in {(consuming_end_time - consuming_start_time)} 秒"
+    )
     print(f"Worker {url} finished.")
 
 
 class UrlParam(BaseModel):
     url: str
 
-@app.post("/funasr/url")
+@app.post("/funasr/url/")
 async def create_url(param: UrlParam):
     try:
-        process = multiprocessing.Process(target=deal_worker, args=(param.url))
+        process = multiprocessing.Process(target=deal_worker, args=(param.url,))
         process.start()
+        return BaseResponse(
+            code=200,
+            msg="OK",
+            data="你好",
+            time_consuming=0,
+        )
     except Exception as e:
         return {"error": str(e)}
 
@@ -198,7 +217,7 @@ if __name__ == "__main__":
         shutil.rmtree(save_path)
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="0.0.0.0")
-    parser.add_argument("--port", type=int, default=7888)
+    parser.add_argument("--port", type=int, default=7865)
     args = parser.parse_args()
     uvicorn.run(
         app="main:app",
