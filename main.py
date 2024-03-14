@@ -8,8 +8,10 @@ import shutil
 import threading
 import time
 import requests
-import asyncio
-
+import uuid
+import MysqlHelper
+import DbConect
+from funasr import AutoModel
 import pydantic
 import uvicorn
 from fastapi import Body, FastAPI, File, UploadFile
@@ -20,6 +22,19 @@ import multiprocessing
 
 logger = logging.getLogger()
 app = FastAPI()
+
+db = MysqlHelper.MysqlHelper(
+    DbConect.ali_asr_model
+)
+
+model = AutoModel(
+    model="paraformer-zh",
+    vad_model="fsmn-vad",
+    punc_model="ct-punc-c",
+    spk_model="cam++",
+    # openai_model="Whisper-large-v3",
+    ncpu=2,
+)
 
 
 class BaseResponse(BaseModel):
@@ -170,46 +185,91 @@ async def create_upload_file(file: UploadFile):
         return {"error": str(e)}
 
 
-def deal_worker(url):
+class model_output():
+    def __init__(self, role, offset, duration, content):
+        self.role = role
+        self.offset = offset
+        self.duration = duration
+        self.content = content
+
+    def to_dict(self):
+        return {
+            'role': self.role,
+            'offset': self.offset,
+            'duration': self.duration,
+            'content': self.content
+        }
+
+
+def deal_worker(url: str, task_id: str):
     """
     要执行的函数，在子进程中运行
     """
-    consuming_start_time = time.perf_counter()
-    print(f"Worker {url} is running...")
-    # 解析音频
-    res = FunasrService(url).transform()
-    answer = []
-    print(str(res[0]["sentence_info"]))
-    for one in res[0]["sentence_info"]:
-        start_time = one['start']
-        end_time = one['end']
-        answer.append(
-            f'{"角色1" if one["spk"] == 0 else "角色2"} : {one["text"]} -- 时长:{end_time - start_time}ms'
+    try:
+        logger.info(f"Worker {task_id} is running...")
+        insertSql = (
+            f"INSERT INTO dj_smartcarlife.ali_asr_model_res (task_id,file_url,task_status) VALUES ('{task_id}','{url}',0);")
+        res = db.execute_modify(insertSql)
+        consuming_start_time = time.perf_counter()
+        # 解析音频
+        res = FunasrService(url).transform()
+        logger.info("res: %s" % str(res[0]["sentence_info"]))
+        output = []
+        content = ""
+        spk = 0
+        duration = 0
+        offset = 0
+        for one in res[0]["sentence_info"]:
+            duration = duration + (one["end"] - one["start"])
+            offset = one["start"]
+            if spk == one["spk"]:
+                content = content + one["text"]
+            else:
+                output.append(model_output(spk, offset, duration, content).to_dict())
+                duration = 0
+                content = one["text"]
+                spk = one["spk"]
+
+        if content != "":
+            output.append(model_output(spk, offset, duration, content).to_dict())
+        json_output = json.dumps(output, ensure_ascii=False)
+        logger.info(f"output:{json_output}")
+        updateSql = (
+            f"update ali_asr_model_res t set t.output_data = '{json_output}',t.task_status = 1 where t.task_id = '{task_id}';")
+        db.execute_modify(updateSql)
+        logger.info(
+            f"Function create_upload_file executed in {(time.perf_counter() - consuming_start_time)} s"
         )
-    consuming_end_time = time.perf_counter()
-    print(f"Function create_upload_file executed in {(consuming_end_time - consuming_start_time)} 秒")
-    logger.info(
-        f"Function create_upload_file executed in {(consuming_end_time - consuming_start_time)} 秒"
-    )
-    print(f"Worker {url} finished.")
+        logger.info(f"Worker {task_id} finished.")
+    except Exception as e:
+        updateSql = (f"update ali_asr_model_res t set t.task_status = 2 where t.task_id = '{task_id}';")
+        db.execute_modify(updateSql)
+        logger.error(f"Worker error：{e}")
+        return {"Worker error": str(e)}
 
 
 class UrlParam(BaseModel):
     url: str
 
+
 @app.post("/funasr/url/")
 async def create_url(param: UrlParam):
     try:
-        process = multiprocessing.Process(target=deal_worker, args=(param.url,))
+        task_id = uuid.uuid1()
+        process = multiprocessing.Process(target=deal_worker, args=(param.url, task_id,))
+        logger.info(f"process:{process}")
         process.start()
-        return BaseResponse(
+        response = BaseResponse(
             code=200,
-            msg="OK",
-            data="你好",
-            time_consuming=0,
+            msg="success",
+            data={"task_id": str(task_id)}
         )
+        logger.info(f"response：{response}")
+        return response
     except Exception as e:
+        logger.error(f"error：{e}")
         return {"error": str(e)}
+
 
 if __name__ == "__main__":
     save_path = "./audio/"
@@ -217,7 +277,7 @@ if __name__ == "__main__":
         shutil.rmtree(save_path)
     parser = argparse.ArgumentParser()
     parser.add_argument("--host", type=str, default="0.0.0.0")
-    parser.add_argument("--port", type=int, default=7865)
+    parser.add_argument("--port", type=int, default=7888)
     args = parser.parse_args()
     uvicorn.run(
         app="main:app",
