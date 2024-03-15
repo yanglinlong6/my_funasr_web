@@ -23,7 +23,7 @@ import multiprocessing
 
 app = FastAPI()
 # 全局进程池
-# pool = multiprocessing.Pool(processes=1)
+pool = multiprocessing.Pool(processes=1)
 
 db = MysqlHelper.MysqlHelper(
     DbConect.ali_asr_model
@@ -244,10 +244,6 @@ def deal_worker(url: str, task_id: str):
         traceback.print_exc()
         return {"Worker error": str(e)}
 
-def deal_worker_wrap (args):
-    return deal_worker(*args)
-
-
 class UrlParam(BaseModel):
     url: str
 
@@ -260,11 +256,13 @@ async def create_url(param: UrlParam):
         insertSql = (
             f"INSERT INTO dj_smartcarlife.ali_asr_model_res (task_id,file_url,task_status) VALUES ('{task_id}','{url}',0);")
         res = db.execute_modify(insertSql)
-        process = multiprocessing.Process(target=deal_worker, args=(url, task_id,))
-        log.info(f"process:{process}")
-        process.start()
-
-        # pool.map_async(target=deal_worker_wrap,[(url,task_id)])
+        # process = multiprocessing.Process(target=deal_worker, args=(url, task_id,))
+        # log.info(f"process:{process}")
+        # process.start()
+        # multiprocessing.freeze_support()
+        pool.apply(deal_worker, (url, task_id))
+        # 关闭进程池，不再接受新的任务
+        pool.close()
 
         response = BaseResponse(
             code=200,
@@ -280,6 +278,7 @@ async def create_url(param: UrlParam):
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     save_path = "./audio/"
     if os.path.exists(save_path):
         shutil.rmtree(save_path)

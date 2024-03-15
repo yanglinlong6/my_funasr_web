@@ -10,7 +10,7 @@ model = AutoModel(
     vad_model="fsmn-vad",
     punc_model="ct-punc-c",
     spk_model="cam++",
-    ncpu=8,
+    ncpu=2,
 )
 
 

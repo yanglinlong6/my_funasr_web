@@ -14,3 +14,9 @@
 2024-03-15 11:16:42,873 23516 main.py[line:274] - INFO: response：code=200 msg='success' data={'task_id': '726c9c63-e27a-11ee-8297-c025a57c5360'} time_consuming=11
 2024-03-15 11:16:58,280 16828 main.py[line:203] - INFO: Worker 63b94d00-e27a-11ee-b082-c025a57c5360 is running...进程名字 Process-3
 2024-03-15 11:17:01,541 13120 main.py[line:203] - INFO: Worker 6d4dd1fb-e27a-11ee-b8f9-c025a57c5360 is running...进程名字 Process-4
+2024-03-15 11:17:32,035 24240 main.py[line:203] - INFO: Worker 7067957f-e27a-11ee-9aea-c025a57c5360 is running...进程名字 Process-5
+2024-03-15 11:17:37,397 20788 main.py[line:203] - INFO: Worker 726c9c63-e27a-11ee-8297-c025a57c5360 is running...进程名字 Process-6
+2024-03-15 11:18:42,569 15616 main.py[line:243] - ERROR: Worker errorcould not create a primitive
+2024-03-15 11:39:23,418 27060 main.py[line:260] - INFO: process:<Process name='Process-1' parent=27408 initial>
+2024-03-15 11:39:23,432 27060 main.py[line:272] - INFO: response：code=200 msg='success' data={'task_id': '9d5fb1d4-e27d-11ee-b60b-c025a57c5360'} time_consuming=11
+2024-03-15 11:39:38,751 18372 main.py[line:203] - INFO: Worker 9d5fb1d4-e27d-11ee-b60b-c025a57c5360 is running...进程名字 Process-1
