@@ -23,7 +23,7 @@ import multiprocessing
 
 app = FastAPI()
 # 全局进程池
-pool = multiprocessing.Pool(processes=1)
+# pool = multiprocessing.Pool(processes=1)
 
 db = MysqlHelper.MysqlHelper(
     DbConect.ali_asr_model
