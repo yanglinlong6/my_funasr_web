@@ -260,9 +260,9 @@ async def create_url(param: UrlParam):
         insertSql = (
             f"INSERT INTO dj_smartcarlife.ali_asr_model_res (task_id,file_url,task_status) VALUES ('{task_id}','{url}',0);")
         res = db.execute_modify(insertSql)
-        # process = multiprocessing.Process(target=deal_worker, args=(url, task_id,))
-        # log.info(f"process:{process}")
-        # process.start()
+        process = multiprocessing.Process(target=deal_worker, args=(url, task_id,))
+        log.info(f"process:{process}")
+        process.start()
 
         # pool.map_async(target=deal_worker_wrap,[(url,task_id)])
 
