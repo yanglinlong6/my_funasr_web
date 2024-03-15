@@ -1,4 +1,5 @@
 import argparse
+import traceback
 from datetime import timedelta
 import json
 import logging
@@ -207,13 +208,15 @@ def deal_worker(url: str, task_id: str):
     """
     try:
         logger.info(f"Worker {task_id} is running...")
-        insertSql = (
-            f"INSERT INTO dj_smartcarlife.ali_asr_model_res (task_id,file_url,task_status) VALUES ('{task_id}','{url}',0);")
-        res = db.execute_modify(insertSql)
         consuming_start_time = time.perf_counter()
         # 解析音频
         res = FunasrService(url).transform()
-        logger.info("res: %s" % str(res[0]["sentence_info"]))
+        logger.info("res: %s" % res)
+        if len(res) < 1:
+            updateSql = (
+                f"update ali_asr_model_res t set t.output_data = '{res}',t.task_status = 1 where t.task_id = '{task_id}';")
+            db.execute_modify(updateSql)
+            return
         output = []
         content = ""
         spk = 0
@@ -245,6 +248,7 @@ def deal_worker(url: str, task_id: str):
         updateSql = (f"update ali_asr_model_res t set t.task_status = 2 where t.task_id = '{task_id}';")
         db.execute_modify(updateSql)
         logger.error(f"Worker error：{e}")
+        traceback.print_exc()
         return {"Worker error": str(e)}
 
 
@@ -256,7 +260,11 @@ class UrlParam(BaseModel):
 async def create_url(param: UrlParam):
     try:
         task_id = uuid.uuid1()
-        process = multiprocessing.Process(target=deal_worker, args=(param.url, task_id,))
+        url = param.url
+        insertSql = (
+            f"INSERT INTO dj_smartcarlife.ali_asr_model_res (task_id,file_url,task_status) VALUES ('{task_id}','{url}',0);")
+        res = db.execute_modify(insertSql)
+        process = multiprocessing.Process(target=deal_worker, args=(url, task_id,))
         logger.info(f"process:{process}")
         process.start()
         response = BaseResponse(
@@ -268,6 +276,7 @@ async def create_url(param: UrlParam):
         return response
     except Exception as e:
         logger.error(f"error：{e}")
+        traceback.print_exc()
         return {"error": str(e)}
 
 
