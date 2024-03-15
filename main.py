@@ -204,18 +204,20 @@ def deal_worker(url: str, task_id: str):
         consuming_start_time = time.perf_counter()
         # 解析音频
         res = FunasrService(url).transform()
-        log.info("res: %s" % res)
         if len(res) < 1:
+            log.info("res: %s" % res)
             updateSql = (
                 f"update ali_asr_model_res t set t.output_data = '{res}',t.task_status = 1 where t.task_id = '{task_id}';")
             db.execute_modify(updateSql)
             return
+        sentence_info = res[0]["sentence_info"]
+        log.info("res.sentence_info: %s" % sentence_info)
         output = []
         content = ""
         spk = 0
         duration = 0
         offset = 0
-        for one in res[0]["sentence_info"]:
+        for one in sentence_info:
             duration = duration + (one["end"] - one["start"])
             offset = one["start"]
             if spk == one["spk"]:
