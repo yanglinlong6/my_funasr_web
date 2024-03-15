@@ -22,22 +22,12 @@ from funasr.download.file import download_from_url
 import multiprocessing
 
 app = FastAPI()
-#全局进程池
-pool = multiprocessing.Pool(processes=4)
+# 全局进程池
+pool = multiprocessing.Pool(processes=1)
 
 db = MysqlHelper.MysqlHelper(
     DbConect.ali_asr_model
 )
-
-model = AutoModel(
-    model="paraformer-zh",
-    vad_model="fsmn-vad",
-    punc_model="ct-punc-c",
-    spk_model="cam++",
-    # openai_model="Whisper-large-v3",
-    ncpu=2,
-)
-
 
 class BaseResponse(BaseModel):
     code: int = pydantic.Field(200, description="HTTP status code")
@@ -172,7 +162,7 @@ async def create_upload_file(file: UploadFile):
             )
         consuming_end_time = time.perf_counter()
         print(f"Function create_upload_file executed in {(consuming_end_time - consuming_start_time)} 秒")
-        logger.info(
+        log.info(
             f"Function create_upload_file executed in {(consuming_end_time - consuming_start_time)} 秒"
         )
         os.remove(save_file)
@@ -208,7 +198,9 @@ def deal_worker(url: str, task_id: str):
     要执行的函数，在子进程中运行
     """
     try:
-        log.info(f"Worker {task_id} is running...")
+        # 获取当前进程的名字
+        name = multiprocessing.current_process().name
+        log.info(f"Worker {task_id} is running...进程名字 {name}")
         consuming_start_time = time.perf_counter()
         # 解析音频
         res = FunasrService(url).transform()
@@ -248,9 +240,12 @@ def deal_worker(url: str, task_id: str):
     except Exception as e:
         updateSql = (f"update ali_asr_model_res t set t.task_status = 2 where t.task_id = '{task_id}';")
         db.execute_modify(updateSql)
-        log.error(f"Worker error：{e}")
+        log.error(f"Worker error{e}")
         traceback.print_exc()
         return {"Worker error": str(e)}
+
+def deal_worker_wrap (args):
+    return deal_worker(*args)
 
 
 class UrlParam(BaseModel):
@@ -265,11 +260,12 @@ async def create_url(param: UrlParam):
         insertSql = (
             f"INSERT INTO dj_smartcarlife.ali_asr_model_res (task_id,file_url,task_status) VALUES ('{task_id}','{url}',0);")
         res = db.execute_modify(insertSql)
-        process = multiprocessing.Process(target=deal_worker, args=(url, task_id,))
-        log.info(f"process:{process}")
-        process.start()
+        # process = multiprocessing.Process(target=deal_worker, args=(url, task_id,))
+        # log.info(f"process:{process}")
+        # process.start()
 
-        # pool.map_async()
+        # pool.map_async(target=deal_worker_wrap,[(url,task_id)])
+
         response = BaseResponse(
             code=200,
             msg="success",
