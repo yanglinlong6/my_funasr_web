@@ -1,10 +1,9 @@
-import logging
 import time
 from funasr import AutoModel
+from logger import log
 
 # paraformer-zh is a multi-functional asr model
 # use vad, punc, spk or not as you need
-logger = logging.getLogger()
 
 model = AutoModel(
     model="paraformer-zh",
@@ -22,7 +21,7 @@ def timeit(func):
         end_time = time.perf_counter()
         total_time = end_time - start_time
         print(f"Function {func.__name__} executed in {total_time} seconds.")
-        logger.info(f"Function {func.__name__} executed in {total_time} seconds.")
+        log.info(f"Function {func.__name__} executed in {total_time} seconds.")
         return result
     return wrapper
 

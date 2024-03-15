@@ -1,8 +1,8 @@
 import argparse
 import traceback
 from datetime import timedelta
+from logger import log
 import json
-import logging
 import os
 import random
 import shutil
@@ -21,8 +21,9 @@ from pydantic import BaseModel
 from funasr.download.file import download_from_url
 import multiprocessing
 
-logger = logging.getLogger()
 app = FastAPI()
+#全局进程池
+pool = multiprocessing.Pool(processes=4)
 
 db = MysqlHelper.MysqlHelper(
     DbConect.ali_asr_model
@@ -84,7 +85,7 @@ async def transform_file():
         )
     consuming_end_time = time.perf_counter()
     print(f"Function transform_file executed in {(consuming_end_time - consuming_start_time)} 秒")
-    logger.info(f"Function transform_file executed in {(consuming_end_time - consuming_start_time)} 秒")
+    log.info(f"Function transform_file executed in {(consuming_end_time - consuming_start_time)} 秒")
     return BaseResponse(
         code=200,
         msg=res[0]["text"],
@@ -126,7 +127,7 @@ async def create_file(file: bytes = File()):
             )
         consuming_end_time = time.perf_counter()
         print(f"Function create_file executed in {(consuming_end_time - consuming_start_time)} 秒")
-        logger.info(f"Function create_file executed in {(consuming_end_time - consuming_start_time)} 秒")
+        log.info(f"Function create_file executed in {(consuming_end_time - consuming_start_time)} 秒")
         os.remove(save_file)
         response = BaseResponse(
             code=200,
@@ -207,11 +208,11 @@ def deal_worker(url: str, task_id: str):
     要执行的函数，在子进程中运行
     """
     try:
-        logger.info(f"Worker {task_id} is running...")
+        log.info(f"Worker {task_id} is running...")
         consuming_start_time = time.perf_counter()
         # 解析音频
         res = FunasrService(url).transform()
-        logger.info("res: %s" % res)
+        log.info("res: %s" % res)
         if len(res) < 1:
             updateSql = (
                 f"update ali_asr_model_res t set t.output_data = '{res}',t.task_status = 1 where t.task_id = '{task_id}';")
@@ -236,18 +237,18 @@ def deal_worker(url: str, task_id: str):
         if content != "":
             output.append(model_output(spk, offset, duration, content).to_dict())
         json_output = json.dumps(output, ensure_ascii=False)
-        logger.info(f"output:{json_output}")
+        log.info(f"output:{json_output}")
         updateSql = (
             f"update ali_asr_model_res t set t.output_data = '{json_output}',t.task_status = 1 where t.task_id = '{task_id}';")
         db.execute_modify(updateSql)
-        logger.info(
+        log.info(
             f"Function create_upload_file executed in {(time.perf_counter() - consuming_start_time)} s"
         )
-        logger.info(f"Worker {task_id} finished.")
+        log.info(f"Worker {task_id} finished.")
     except Exception as e:
         updateSql = (f"update ali_asr_model_res t set t.task_status = 2 where t.task_id = '{task_id}';")
         db.execute_modify(updateSql)
-        logger.error(f"Worker error：{e}")
+        log.error(f"Worker error：{e}")
         traceback.print_exc()
         return {"Worker error": str(e)}
 
@@ -265,17 +266,19 @@ async def create_url(param: UrlParam):
             f"INSERT INTO dj_smartcarlife.ali_asr_model_res (task_id,file_url,task_status) VALUES ('{task_id}','{url}',0);")
         res = db.execute_modify(insertSql)
         process = multiprocessing.Process(target=deal_worker, args=(url, task_id,))
-        logger.info(f"process:{process}")
+        log.info(f"process:{process}")
         process.start()
+
+        # pool.map_async()
         response = BaseResponse(
             code=200,
             msg="success",
             data={"task_id": str(task_id)}
         )
-        logger.info(f"response：{response}")
+        log.info(f"response：{response}")
         return response
     except Exception as e:
-        logger.error(f"error：{e}")
+        log.error(f"error：{e}")
         traceback.print_exc()
         return {"error": str(e)}
 
