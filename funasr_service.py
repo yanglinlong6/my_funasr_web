@@ -1,6 +1,10 @@
 import time
 from funasr import AutoModel
 from logger import log
+import json
+import traceback
+
+from mysql_service import funasr_db
 
 # paraformer-zh is a multi-functional asr model
 # use vad, punc, spk or not as you need
@@ -34,3 +38,66 @@ class FunasrService(object):
         res = model.generate(input=self.path, batch_size_s=300, hotword="问界 80")
         # print(res)
         return res
+
+
+class model_output():
+    def __init__(self, role, offset, duration, content):
+        self.role = role
+        self.offset = offset
+        self.duration = duration
+        self.content = content
+
+    def to_dict(self):
+        return {
+            'role': self.role,
+            'offset': self.offset,
+            'duration': self.duration,
+            'content': self.content
+        }
+
+
+def deal_worker(url: str, task_id: str):
+    """
+    要执行的函数，在子进程中运行
+    """
+    try:
+        log.info(f"Worker {task_id} is running...")
+        consuming_start_time = time.perf_counter()
+        # 解析音频
+        res = FunasrService(url).transform()
+        if len(res) < 1:
+            log.info("res: %s" % res)
+            funasr_db.update_ali_asr_model_res(task_id, res)
+            return
+        sentence_info = res[0]["sentence_info"]
+        log.info("res.sentence_info: %s" % sentence_info)
+        output = []
+        content = ""
+        spk = 0
+        duration = 0
+        offset = 0
+        for one in sentence_info:
+            duration = duration + (one["end"] - one["start"])
+            offset = one["start"]
+            if spk == one["spk"]:
+                content = content + one["text"]
+            else:
+                output.append(model_output(spk, offset, duration, content).to_dict())
+                duration = 0
+                content = one["text"]
+                spk = one["spk"]
+
+        if content != "":
+            output.append(model_output(spk, offset, duration, content).to_dict())
+        json_output = json.dumps(output, ensure_ascii=False)
+        log.info(f"output:{json_output}")
+        funasr_db.update_ali_asr_model_res(task_id,json_output)
+        log.info(
+            f"Function create_upload_file executed in {(time.perf_counter() - consuming_start_time)} s"
+        )
+        log.info(f"Worker {task_id} finished.")
+    except Exception as e:
+        funasr_db.update_ali_asr_model_res_fail(task_id)
+        log.error(f"Worker error{e}")
+        traceback.print_exc()
+        return {"Worker error": str(e)}

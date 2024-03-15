@@ -1,7 +1,7 @@
 #import os,sys
 import logging
 import pymysql
-import DbConect
+from mysql_service import DbConect
 
 #print(sys.path)
 
