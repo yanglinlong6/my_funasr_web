@@ -1,8 +1,7 @@
 import argparse
 import traceback
-
-import funasr_service
-from logger import log
+from kafka_service import funasr_producer
+from log.logger import log
 import os
 import random
 import shutil
@@ -14,12 +13,9 @@ import uvicorn
 from fastapi import FastAPI, File, UploadFile
 from funasr_service import FunasrService
 from pydantic import BaseModel
-import multiprocessing
-
 from mysql_service import funasr_db
 
 app = FastAPI()
-
 
 class BaseResponse(BaseModel):
     code: int = pydantic.Field(200, description="HTTP status code")
@@ -176,12 +172,13 @@ class UrlParam(BaseModel):
 @app.post("/funasr/url/")
 async def create_url(param: UrlParam):
     try:
-        task_id = uuid.uuid1()
+        task_id = str(uuid.uuid1())
         url = param.url
-        funasr_db.insert_ali_asr_model_res(str(task_id), url)
-        process = multiprocessing.Process(target=funasr_service.deal_worker, args=(url, task_id,))
-        log.info(f"process:{process}")
-        process.start()
+        funasr_db.insert_ali_asr_model_res(task_id, url)
+        funasr_producer.send_message_analysis({"task_id":task_id})
+        # process = multiprocessing.Process(target=funasr_service.deal_worker, args=(url, task_id,))
+        # log.info(f"process:{process}")
+        # process.start()
         response = BaseResponse(
             code=200,
             msg="success",

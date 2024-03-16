@@ -1,6 +1,6 @@
 import time
 from funasr import AutoModel
-from logger import log
+from log.logger import log
 import json
 import traceback
 
@@ -27,10 +27,12 @@ def timeit(func):
         print(f"Function {func.__name__} executed in {total_time} seconds.")
         log.info(f"Function {func.__name__} executed in {total_time} seconds.")
         return result
+
     return wrapper
 
+
 class FunasrService(object):
-    def __init__(self,path):
+    def __init__(self, path):
         self.path = path
 
     @timeit
@@ -56,12 +58,28 @@ class model_output():
         }
 
 
-def deal_worker(url: str, task_id: str):
+def handle_process(message: str):
+    try:
+        # 处理逻辑
+        start_time = time.time()
+        task_id = json.loads(message)["task_id"]
+        deal_worker(task_id)
+        log.info("funasr_handle_process耗时:" + str(time.time() - start_time))
+    except Exception as e:
+        traceback.print_exc()
+        log.error("funasr consumer Exception: " + str(e))
+
+
+def deal_worker(task_id: str):
     """
     要执行的函数，在子进程中运行
     """
     try:
-        log.info(f"Worker {task_id} is running...")
+        res = funasr_db.select_ali_asr_model_res(task_id)
+        if res is None or len(res) < 1:
+            return
+        url = json.loads(res)[0]["file_url"]
+        log.info(f"Worker {task_id} is running... url:{url}")
         consuming_start_time = time.perf_counter()
         # 解析音频
         res = FunasrService(url).transform()
@@ -91,7 +109,7 @@ def deal_worker(url: str, task_id: str):
             output.append(model_output(spk, offset, duration, content).to_dict())
         json_output = json.dumps(output, ensure_ascii=False)
         log.info(f"output:{json_output}")
-        funasr_db.update_ali_asr_model_res(task_id,json_output)
+        funasr_db.update_ali_asr_model_res(task_id, json_output)
         log.info(
             f"Function create_upload_file executed in {(time.perf_counter() - consuming_start_time)} s"
         )

@@ -1,8 +1,15 @@
+import time
 from kafka import KafkaConsumer
+
+import funasr_service
+from log.logger import log
+from mysql.connector import pooling
+from config.config_dev import Config
+
 
 # 配置 Kafka 消费者
 consumer = KafkaConsumer(
-    Config.kafka_consumer_topic,
+    Config.kafka_consumer_analysis_topic,
     bootstrap_servers=Config.kafka_consumer_bootstrap_servers,  # Kafka broker 的地址
     group_id=Config.kafka_consumer_group_id,  # 消费者组 ID
     auto_offset_reset=Config.kafka_consumer_auto_offset_reset,  # 从最早的消息开始消费
@@ -23,6 +30,8 @@ connection_pool = pooling.MySQLConnectionPool(
 )
 
 log.info("启动3")
+
+
 # 从连接池获取连接
 def get_connection():
     log.info("connection_pool size:" + str(connection_pool._cnx_queue.qsize()))
@@ -43,6 +52,7 @@ def execute_sql(sql):
         cursor.close()
         conn.close()
 
+
 #
 
 def consume_kafka():
@@ -54,8 +64,17 @@ def consume_kafka():
                 continue
             # 处理逻辑
             start_time = time.time()
-            handle_process(msg)
+            # funasr_service.handle_process(msg)
+            print("task handle")
             end_time = time.time()
-            log.info("handle_process耗时:"+str(end_time-start_time))
+            log.info("handle_process耗时:" + str(end_time - start_time))
     except Exception as e:
         log.error("ocr consumer Exception: " + str(e))
+
+
+# 循环消费消息
+for message in consumer:
+    log.info(f"Received message: {message.value}")
+    if message is None:
+        continue
+    funasr_service.handle_process(str(message.value.decode('utf-8')))

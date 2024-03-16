@@ -1,11 +1,11 @@
 #import os,sys
-import logging
-import pymysql
-from mysql_service import DbConect
+import json
 
+import pymysql
+from config import DbConect
+from log.logger import log
 #print(sys.path)
 
-logger = logging.getLogger()
 
 class MysqlHelper:
 
@@ -67,13 +67,13 @@ class MysqlHelper:
         执行插入/更新/删除语句
         """
         try:
-            logger.info("execute_modify sql:%s" % sql)
+            log.info("execute_modify sql:%s" % sql)
             res = self.cursor.execute(sql)
             self.con.commit()
-            logger.info("execute_modify result:%s" % res)
+            log.info("execute_modify result:%s" % res)
             result = True
         except Exception as e:
-            logging.error(e)
+            log.error(e)
             self.con.rollback
             result = False
         return result
@@ -84,13 +84,18 @@ class MysqlHelper:
         执行查询语句
         """
         try:
-            logger.info("execute_select sql:%s" % sql)
+            log.info("execute_select sql:%s" % sql)
             self.cursor.execute(sql)
-            res = self.cursor.fetchall()
-            logger.info("execute_select result:%s" % res)
+            # 获取字段名
+            field_names = [i[0] for i in self.cursor.description]
+            rows = self.cursor.fetchall()
+            if rows is None or len(rows) < 1:
+                return None
+            res = json.dumps([dict(zip(field_names, row)) for row in rows], ensure_ascii=False)
+            log.info("execute_select result:%s" % res)
             return res
         except Exception as e:
-            logging.error(e)
+            log.error(e)
             return False
         finally:
             pass
@@ -101,12 +106,12 @@ class MysqlHelper:
         执行查询语句
         """
         try:
-            logging.info(sql)
+            log.info(sql)
             self.cursor.execute(sql)
             res = self.cursor.fetchone
             return res
         except Exception as e:
-            logging.error(e)
+            log.error(e)
             return False
         finally:
             pass
