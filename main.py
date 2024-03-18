@@ -15,7 +15,6 @@ from funasr_service import FunasrService
 from pydantic import BaseModel
 from mysql_service import funasr_db
 from kafka_service import funasr_consumer
-from config.config import ConfigInfo
 
 app = FastAPI()
 

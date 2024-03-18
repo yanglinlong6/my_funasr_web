@@ -14,7 +14,7 @@ model = AutoModel(
     vad_model="fsmn-vad",
     punc_model="ct-punc-c",
     spk_model="cam++",
-    ncpu=2,
+    ncpu=8,
 )
 
 
@@ -77,6 +77,9 @@ def deal_worker(task_id: str):
     try:
         res = funasr_db.select_ali_asr_model_res(task_id)
         if res is None or len(res) < 1:
+            return
+        output_data = json.loads(res)[0]["output_data"]
+        if output_data is not None:
             return
         url = json.loads(res)[0]["file_url"]
         log.info(f"Worker {task_id} is running... url:{url}")

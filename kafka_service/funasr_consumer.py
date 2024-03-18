@@ -4,15 +4,15 @@ from kafka import KafkaConsumer
 import funasr_service
 from log.logger import log
 from mysql.connector import pooling
-from config.config_dev import Config
+from config.config import ConfigInfo
 
 
 # 配置 Kafka 消费者
 consumer = KafkaConsumer(
-    Config.kafka_consumer_analysis_topic,
-    bootstrap_servers=Config.kafka_consumer_bootstrap_servers,  # Kafka broker 的地址
-    group_id=Config.kafka_consumer_group_id,  # 消费者组 ID
-    auto_offset_reset=Config.kafka_consumer_auto_offset_reset,  # 从最早的消息开始消费
+    ConfigInfo.kafka_consumer_analysis_topic,
+    bootstrap_servers=ConfigInfo.kafka_consumer_bootstrap_servers,  # Kafka broker 的地址
+    group_id=ConfigInfo.kafka_consumer_group_id,  # 消费者组 ID
+    auto_offset_reset=ConfigInfo.kafka_consumer_auto_offset_reset,  # 从最早的消息开始消费
 )
 log.info("启动2")
 
@@ -21,11 +21,11 @@ connection_pool = pooling.MySQLConnectionPool(
     pool_name="mypool",
     pool_size=32,
     pool_reset_session=True,
-    host=Config.host,
-    port=Config.port,
-    database=Config.database,
-    user=Config.user,
-    password=Config.password,
+    host=ConfigInfo.host,
+    port=ConfigInfo.port,
+    database=ConfigInfo.database,
+    user=ConfigInfo.user,
+    password=ConfigInfo.password,
     autocommit=True,
 )
 
@@ -61,9 +61,10 @@ def consume_kafka():
         for message in consumer:
             if message is None:
                 continue
+            log.info(f"Received message: {message}")
+            log.info(f"Received message value: {message.value}")
             # 处理逻辑
             start_time = time.time()
-            # funasr_service.handle_process(message)
             funasr_service.handle_process(str(message.value.decode('utf-8')))
             print("task handle")
             end_time = time.time()
