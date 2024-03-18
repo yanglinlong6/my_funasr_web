@@ -14,6 +14,8 @@ from fastapi import FastAPI, File, UploadFile
 from funasr_service import FunasrService
 from pydantic import BaseModel
 from mysql_service import funasr_db
+from kafka_service import funasr_consumer
+from config.config import ConfigInfo
 
 app = FastAPI()
 
@@ -191,8 +193,14 @@ async def create_url(param: UrlParam):
         traceback.print_exc()
         return {"error": str(e)}
 
+def start_kafka():
+    kafka_thread = threading.Thread(target=funasr_consumer.consume_kafka)
+    kafka_thread.daemon = True  # 将线程设置为守护线程，当主线程结束时，该线程也会自动结束
+    kafka_thread.start()
+
 
 if __name__ == "__main__":
+    start_kafka()
     save_path = "./audio/"
     if os.path.exists(save_path):
         shutil.rmtree(save_path)

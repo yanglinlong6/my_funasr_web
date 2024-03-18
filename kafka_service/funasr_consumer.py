@@ -53,18 +53,18 @@ def execute_sql(sql):
         conn.close()
 
 
-#
-
+# 循环消费消息
 def consume_kafka():
     log.info("启动consume_kafka")
     # 消费消息并进行逻辑处理
     try:
-        for msg in consumer:
-            if msg is None:
+        for message in consumer:
+            if message is None:
                 continue
             # 处理逻辑
             start_time = time.time()
-            # funasr_service.handle_process(msg)
+            # funasr_service.handle_process(message)
+            funasr_service.handle_process(str(message.value.decode('utf-8')))
             print("task handle")
             end_time = time.time()
             log.info("handle_process耗时:" + str(end_time - start_time))
@@ -73,8 +73,8 @@ def consume_kafka():
 
 
 # 循环消费消息
-for message in consumer:
-    log.info(f"Received message: {message.value}")
-    if message is None:
-        continue
-    funasr_service.handle_process(str(message.value.decode('utf-8')))
+# for message in consumer:
+#     log.info(f"Received message: {message.value}")
+#     if message is None:
+#         continue
+#     funasr_service.handle_process(str(message.value.decode('utf-8')))

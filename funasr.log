@@ -133,3 +133,12 @@
 2024-03-15 18:39:43,949 12724 MysqlHelper.py[line:72] - INFO: execute_modify result:1
 2024-03-15 18:39:43,949 12724 funasr_service.py[line:103] - INFO: Function create_upload_file executed in 40.10529479999968 s
 2024-03-15 18:39:43,949 12724 funasr_service.py[line:106] - INFO: Worker 3363630e-e2b8-11ee-b8f9-a0e70be87132 finished.
+2024-03-18 11:03:06,031 24452 funasr_consumer.py[line:17] - INFO: 启动2
+2024-03-18 11:03:06,170 24452 funasr_consumer.py[line:32] - INFO: 启动3
+2024-03-18 11:05:22,236 21236 funasr_consumer.py[line:17] - INFO: 启动2
+2024-03-18 11:05:22,617 21236 funasr_consumer.py[line:32] - INFO: 启动3
+2024-03-18 11:05:22,640 21236 config.py[line:15] - INFO: {'__module__': 'config.config_dev', 'DEBUG': False, 'env': 'dev', 'host': '192.168.3.227', 'port': 3306, 'user': 'dev_user', 'password': 'df234fl', 'database': 'glsx_car_service', 'kafka_consumer_bootstrap_servers': '192.168.3.131:9092', 'kafka_consumer_group_id': 'funasr_dev', 'kafka_consumer_auto_offset_reset': 'earliest', 'kafka_consumer_analysis_topic': 'funasr_analysis_topic', 'charset': 'utf8', '__dict__': <attribute '__dict__' of 'Config' objects>, '__weakref__': <attribute '__weakref__' of 'Config' objects>, '__doc__': None}
+2024-03-18 11:06:30,820 25204 funasr_consumer.py[line:17] - INFO: 启动2
+2024-03-18 11:06:30,928 25204 funasr_consumer.py[line:32] - INFO: 启动3
+2024-03-18 11:06:30,932 25204 config.py[line:15] - INFO: {'__module__': 'config.config_dev', 'DEBUG': False, 'env': 'dev', 'host': '192.168.3.227', 'port': 3306, 'user': 'dev_user', 'password': 'df234fl', 'database': 'glsx_car_service', 'kafka_consumer_bootstrap_servers': '192.168.3.131:9092', 'kafka_consumer_group_id': 'funasr_dev', 'kafka_consumer_auto_offset_reset': 'earliest', 'kafka_consumer_analysis_topic': 'funasr_analysis_topic', 'charset': 'utf8', '__dict__': <attribute '__dict__' of 'Config' objects>, '__weakref__': <attribute '__weakref__' of 'Config' objects>, '__doc__': None}
+2024-03-18 11:06:30,967 21780 funasr_consumer.py[line:58] - INFO: 启动consume_kafka
