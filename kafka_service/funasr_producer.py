@@ -23,6 +23,8 @@ def send_message_analysis(message):
 
 def send_wait_task():
     res = funasr_db.select_ali_asr_model_wait()
+    if res is None or isinstance(res, bool) or len(res) < 1:
+        return
     json_res = json.loads(res)
     print(f"服务启动推送等待任务：{json_res}")
     for item in json_res:
