@@ -200,6 +200,7 @@ def start_kafka():
 
 if __name__ == "__main__":
     start_kafka()
+    funasr_producer.send_wait_task()
     save_path = "./audio/"
     if os.path.exists(save_path):
         shutil.rmtree(save_path)

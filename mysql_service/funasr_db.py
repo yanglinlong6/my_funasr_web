@@ -33,5 +33,6 @@ def select_ali_asr_model_res(task_id: str):
 
 def select_ali_asr_model_wait():
     select_sql = (
-        f"select id,task_id,file_url,task_status,output_data from ali_asr_model_res aamr where aamr.del_flag = 0 and aamr.output_data  is null;")
+        f"select id,task_id,file_url,task_status,output_data from ali_asr_model_res aamr where aamr.del_flag = 0 and "
+        f"aamr.output_data is null and aamr.task_status = 0;")
     return db.execute_select(select_sql)
