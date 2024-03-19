@@ -14,7 +14,7 @@ model = AutoModel(
     vad_model="fsmn-vad",
     punc_model="ct-punc",
     spk_model="cam++",
-    ncpu=4,
+    ncpu=8,
 )
 
 
@@ -37,7 +37,7 @@ class FunasrService(object):
 
     @timeit
     def transform(self):
-        res = model.generate(input=self.path, batch_size_s=100, hotword="问界 80")
+        res = model.generate(input=self.path, batch_size_s=200, hotword="问界 80")
         # print(res)
         return res
 
