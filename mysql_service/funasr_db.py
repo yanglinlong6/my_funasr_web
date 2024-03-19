@@ -29,3 +29,9 @@ def select_ali_asr_model_res(task_id: str):
         f"select id,task_id,file_url,task_status,output_data from ali_asr_model_res aamr where del_flag = 0 and "
         f"task_id = '{task_id}';")
     return db.execute_select(select_sql)
+
+
+def select_ali_asr_model_wait():
+    select_sql = (
+        f"select id,task_id,file_url,task_status,output_data from ali_asr_model_res aamr where aamr.del_flag = 0 and aamr.output_data  is null;")
+    return db.execute_select(select_sql)
