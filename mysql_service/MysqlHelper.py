@@ -1,6 +1,6 @@
 #import os,sys
 import json
-
+import traceback
 import pymysql
 from config import DbConect
 from log.logger import log
@@ -74,6 +74,7 @@ class MysqlHelper:
             result = True
         except Exception as e:
             log.error(e)
+            traceback.print_exc()
             self.con.rollback
             result = False
         return result
@@ -96,6 +97,7 @@ class MysqlHelper:
             return res
         except Exception as e:
             log.error(e)
+            traceback.print_exc()
             return False
         finally:
             pass
@@ -112,6 +114,7 @@ class MysqlHelper:
             return res
         except Exception as e:
             log.error(e)
+            traceback.print_exc()
             return False
         finally:
             pass

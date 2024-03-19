@@ -1,4 +1,6 @@
 import time
+import traceback
+
 from kafka import KafkaConsumer
 
 import funasr_service
@@ -70,6 +72,7 @@ def consume_kafka():
             end_time = time.time()
             log.info("handle_process耗时:" + str(end_time - start_time))
     except Exception as e:
+        traceback.print_exc()
         log.error("ocr consumer Exception: " + str(e))
 
 

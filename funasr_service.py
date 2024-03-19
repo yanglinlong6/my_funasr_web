@@ -14,7 +14,7 @@ model = AutoModel(
     vad_model="fsmn-vad",
     punc_model="ct-punc",
     spk_model="cam++",
-    ncpu=8,
+    ncpu=4,
 )
 
 
@@ -37,7 +37,7 @@ class FunasrService(object):
 
     @timeit
     def transform(self):
-        res = model.generate(input=self.path, batch_size_s=300, hotword="问界 80")
+        res = model.generate(input=self.path, batch_size_s=100, hotword="问界 80")
         # print(res)
         return res
 
@@ -76,7 +76,7 @@ def deal_worker(task_id: str):
     """
     try:
         res = funasr_db.select_ali_asr_model_res(task_id)
-        if res is None or len(res) < 1:
+        if res is None or isinstance(res, bool) or len(res) < 1:
             return
         output_data = json.loads(res)[0]["output_data"]
         if output_data is not None:
@@ -88,7 +88,7 @@ def deal_worker(task_id: str):
         res = FunasrService(url).transform()
         if len(res) < 1:
             log.info("res: %s" % res)
-            funasr_db.update_ali_asr_model_res(task_id, res)
+            funasr_db.update_ali_asr_model_res(task_id, res, 0)
             return
         sentence_info = res[0]["sentence_info"]
         log.info("res.sentence_info: %s" % sentence_info)
@@ -112,9 +112,10 @@ def deal_worker(task_id: str):
             output.append(model_output(spk, offset, duration, content).to_dict())
         json_output = json.dumps(output, ensure_ascii=False)
         log.info(f"output:{json_output}")
-        funasr_db.update_ali_asr_model_res(task_id, json_output)
+        execute_time = time.perf_counter() - consuming_start_time
+        funasr_db.update_ali_asr_model_res(task_id, json_output, int((execute_time * 1000)))
         log.info(
-            f"Function create_upload_file executed in {(time.perf_counter() - consuming_start_time)} s"
+            f"Function create_upload_file executed in {execute_time} s"
         )
         log.info(f"Worker {task_id} finished.")
     except Exception as e:

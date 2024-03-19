@@ -1,5 +1,6 @@
 from mysql_service import MysqlHelper
 from config import DbConect
+from config.config import ConfigInfo
 
 db = MysqlHelper.MysqlHelper(
     DbConect.ali_asr_model
@@ -12,15 +13,15 @@ def insert_ali_asr_model_res(task_id: str, url: str):
     return db.execute_modify(insert_sql)
 
 
-def update_ali_asr_model_res(task_id: str, json_output: str):
+def update_ali_asr_model_res(task_id: str, json_output: str, execute_time: int):
     update_sql = (
-        f"update ali_asr_model_res t set t.output_data = '{json_output}',t.task_status = 1 where t.task_id = '{task_id}';")
+        f"update ali_asr_model_res t set t.output_data = '{json_output}',t.task_status = 1, t.execute_time = {execute_time} where t.task_id = '{task_id}';")
     return db.execute_modify(update_sql)
 
 
-def update_ali_asr_model_res_fail(task_id: str):
+def update_ali_asr_model_res_fail(task_id: str, exception: str):
     update_sql = (
-        f"update ali_asr_model_res t set t.task_status = 2 where t.task_id = '{task_id}';")
+        f"update ali_asr_model_res t set t.task_status = 2, t.exception_log = '{exception}' where t.task_id = '{task_id}';")
     return db.execute_modify(update_sql)
 
 
