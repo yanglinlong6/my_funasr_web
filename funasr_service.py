@@ -12,7 +12,7 @@ from mysql_service import funasr_db
 model = AutoModel(
     model="paraformer-zh",
     vad_model="fsmn-vad",
-    punc_model="ct-punc",
+    punc_model="ct-punc-c",
     spk_model="cam++",
     ncpu=8,
 )
