@@ -1,3 +1,5 @@
+import multiprocessing
+import threading
 import time
 import traceback
 
@@ -7,7 +9,6 @@ import funasr_service
 from log.logger import log
 from mysql.connector import pooling
 from config.config import ConfigInfo
-
 
 # 配置 Kafka 消费者
 consumer = KafkaConsumer(
@@ -64,7 +65,7 @@ def consume_kafka():
             if message is None:
                 continue
             log.info(f"Received message: {message}")
-            log.info(f"Received message value: {message.value}")
+            log.info(f"process name:{multiprocessing.current_process()},thread name:{threading.currentThread()}，Received message value: {message.value}")
             # 处理逻辑
             start_time = time.time()
             funasr_service.handle_process(str(message.value.decode('utf-8')))
@@ -74,7 +75,6 @@ def consume_kafka():
     except Exception as e:
         traceback.print_exc()
         log.error("ocr consumer Exception: " + str(e))
-
 
 # 循环消费消息
 # for message in consumer:
