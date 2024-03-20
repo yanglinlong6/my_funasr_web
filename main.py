@@ -219,7 +219,8 @@ def start_process():
 
 if __name__ == "__main__":
     log.info("funasr main starting...")
-    start_kafka()
+    # start_kafka()
+    start_process()
     start_process()
     # process = multiprocessing.Process(target=funasr_service.deal_worker, args=(url, task_id,))
     # log.info(f"process:{process}")
