@@ -18,6 +18,7 @@ from kafka_service import funasr_consumer
 
 app = FastAPI()
 
+
 class BaseResponse(BaseModel):
     code: int = pydantic.Field(200, description="HTTP status code")
     msg: str = pydantic.Field("success", description="HTTP status message")
@@ -173,10 +174,17 @@ class UrlParam(BaseModel):
 @app.post("/funasr/url/")
 async def create_url(param: UrlParam):
     try:
+        log.info(f"funasr create_url api param:{param}")
         task_id = str(uuid.uuid1())
         url = param.url
-        funasr_db.insert_ali_asr_model_res(task_id, url)
-        funasr_producer.send_message_analysis({"task_id":task_id})
+        res = funasr_db.insert_ali_asr_model_res(task_id, url)
+        if res is None or (isinstance(res, bool) and res is False):
+            return BaseResponse(
+                code=-1,
+                msg="error",
+                data="数据库异常"
+            )
+        funasr_producer.send_message_analysis({"task_id": task_id})
         # process = multiprocessing.Process(target=funasr_service.deal_worker, args=(url, task_id,))
         # log.info(f"process:{process}")
         # process.start()
@@ -192,6 +200,7 @@ async def create_url(param: UrlParam):
         traceback.print_exc()
         return {"error": str(e)}
 
+
 def start_kafka():
     kafka_thread = threading.Thread(target=funasr_consumer.consume_kafka)
     kafka_thread.daemon = True  # 将线程设置为守护线程，当主线程结束时，该线程也会自动结束
@@ -199,6 +208,7 @@ def start_kafka():
 
 
 if __name__ == "__main__":
+    log.info("funasr main starting...")
     start_kafka()
     funasr_producer.send_wait_task()
     save_path = "./audio/"
