@@ -83,12 +83,13 @@ class MultiThreadKafka(object):
 
     def operate(self):
         consumer = KafkaConsumer(
-            ConfigInfo.kafka_consumer_analysis_topic,
+            # ConfigInfo.kafka_consumer_analysis_topic,
             bootstrap_servers=ConfigInfo.kafka_consumer_bootstrap_servers,  # Kafka broker 的地址
             group_id=ConfigInfo.kafka_consumer_group_id,  # 消费者组 ID
             auto_offset_reset=ConfigInfo.kafka_consumer_auto_offset_reset,  # 从最早的消息开始消费
         )
-        tp = TopicPartition(ConfigInfo.kafka_consumer_analysis_topic, 0)
+        print(f"seek:{self.seek}")
+        tp = TopicPartition(ConfigInfo.kafka_consumer_analysis_topic, self.seek)
         consumer.assign([tp])
         # consumer.seek(tp, self.seek)
         self.seek += 1
