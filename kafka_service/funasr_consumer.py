@@ -58,7 +58,7 @@ def execute_sql(sql):
 
 # 循环消费消息
 def consume_kafka():
-    log.info("启动consume_kafka")
+    log.info(f"启动consume_kafka Thread name:{threading.currentThread()}")
     # 消费消息并进行逻辑处理
     try:
         for message in consumer:
