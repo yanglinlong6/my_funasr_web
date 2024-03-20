@@ -1,4 +1,5 @@
 import argparse
+import multiprocessing
 import traceback
 from kafka_service import funasr_producer
 import os
@@ -192,9 +193,6 @@ async def create_url(param: UrlParam):
                 data="数据库异常"
             )
         funasr_producer.send_message_analysis({"task_id": task_id})
-        # process = multiprocessing.Process(target=funasr_service.deal_worker, args=(url, task_id,))
-        # log.info(f"process:{process}")
-        # process.start()
         response = BaseResponse(
             code=200,
             msg="success",
@@ -213,11 +211,19 @@ def start_kafka():
     kafka_thread.daemon = True  # 将线程设置为守护线程，当主线程结束时，该线程也会自动结束
     kafka_thread.start()
 
+def start_process():
+    process = multiprocessing.Process(target=funasr_consumer.consume_kafka,)
+    log.info(f"process:{process}")
+    process.start()
+
 
 if __name__ == "__main__":
     log.info("funasr main starting...")
     start_kafka()
-    start_kafka()
+    start_process()
+    # process = multiprocessing.Process(target=funasr_service.deal_worker, args=(url, task_id,))
+    # log.info(f"process:{process}")
+    # process.start()
     funasr_producer.send_wait_task()
     save_path = "./audio/"
     if os.path.exists(save_path):
