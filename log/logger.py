@@ -32,4 +32,4 @@ def setup_logging(log_file):
 
     return logger
 
-log=setup_logging('funasr.log')
+log=setup_logging('./funasr.log')
