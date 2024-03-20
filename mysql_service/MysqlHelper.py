@@ -29,8 +29,9 @@ class MysqlHelper:
                     port=self.port, 
                     user=self.user, 
                     password=self.password,
-                    database=self.db, charset='utf8',
-                    write_timeout=99999999)
+                    database=self.db, charset='utf8'
+                    # ,write_timeout=99999999
+            )
 
             self.cursor = self.con.cursor()
             self._instance = MysqlHelper
