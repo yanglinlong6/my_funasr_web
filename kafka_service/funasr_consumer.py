@@ -2,16 +2,16 @@ import multiprocessing
 import threading
 import time
 import traceback
-
-from kafka import KafkaConsumer
-
 import funasr_service
+from kafka import KafkaConsumer
 from log.logger import log
 from mysql.connector import pooling
 from config.config import ConfigInfo
+from concurrent.futures import ThreadPoolExecutor
+from kafka.structs import TopicPartition
 
 # 配置 Kafka 消费者
-consumer = KafkaConsumer(
+consumer_new = KafkaConsumer(
     ConfigInfo.kafka_consumer_analysis_topic,
     bootstrap_servers=ConfigInfo.kafka_consumer_bootstrap_servers,  # Kafka broker 的地址
     group_id=ConfigInfo.kafka_consumer_group_id,  # 消费者组 ID
@@ -56,16 +56,67 @@ def execute_sql(sql):
         conn.close()
 
 
+class MultiThreadKafka(object):
+
+    def __init__(self):
+        self.seek = 0  # 偏移量
+    def start_consumer(self, consumer):
+        log.info(f"启动consume_kafka Thread name:{threading.current_thread().name}")
+        # 消费消息并进行逻辑处理
+        try:
+            for message in consumer:
+                if message is None:
+                    continue
+                log.info(f"Received message: {message}")
+                log.info(
+                    f"""process name:{multiprocessing.current_process()},thread name:{threading.current_thread().name}，
+                            Received message value: {message.value}""")
+                # 处理逻辑
+                start_time = time.time()
+                funasr_service.handle_process(str(message.value.decode('utf-8')))
+                print("task handle")
+                end_time = time.time()
+                log.info("handle_process耗时:" + str(end_time - start_time))
+        except Exception as e:
+            traceback.print_exc()
+            log.error("funasr consumer Exception: " + str(e))
+
+    def operate(self):
+        consumer = KafkaConsumer(
+            ConfigInfo.kafka_consumer_analysis_topic,
+            bootstrap_servers=ConfigInfo.kafka_consumer_bootstrap_servers,  # Kafka broker 的地址
+            group_id=ConfigInfo.kafka_consumer_group_id,  # 消费者组 ID
+            auto_offset_reset=ConfigInfo.kafka_consumer_auto_offset_reset,  # 从最早的消息开始消费
+        )
+        tp = TopicPartition(ConfigInfo.kafka_consumer_analysis_topic, 0)
+        consumer.assign([tp])
+        # consumer.seek(tp, self.seek)
+        self.seek += 1
+        # consumer_data = next(consumer)
+        self.start_consumer(consumer)
+
+    def main(self):
+        thread_pool = ThreadPoolExecutor(max_workers=2, thread_name_prefix="funasr_")  # 我们使用线程池统一管理线程
+        for i in range(2):
+            thread_pool.submit(self.operate, )
+
+
+def multi_thread_consumer():
+    thread_kafka = MultiThreadKafka()
+    thread_kafka.main()
+
+
 # 循环消费消息
 def consume_kafka():
-    log.info(f"启动consume_kafka Thread name:{threading.currentThread()}")
+    log.info(f"启动consume_kafka Thread name:{threading.current_thread().name}")
     # 消费消息并进行逻辑处理
     try:
-        for message in consumer:
+        for message in consumer_new:
             if message is None:
                 continue
             log.info(f"Received message: {message}")
-            log.info(f"process name:{multiprocessing.current_process()},thread name:{threading.currentThread()}，Received message value: {message.value}")
+            log.info(f"""process name:{multiprocessing.current_process()},thread name:{threading.current_thread().name}，
+                    Received message value: {message.value}""")
             # 处理逻辑
             start_time = time.time()
             funasr_service.handle_process(str(message.value.decode('utf-8')))
@@ -74,7 +125,7 @@ def consume_kafka():
             log.info("handle_process耗时:" + str(end_time - start_time))
     except Exception as e:
         traceback.print_exc()
-        log.error("ocr consumer Exception: " + str(e))
+        log.error("funasr consumer Exception: " + str(e))
 
 # 循环消费消息
 # for message in consumer:
