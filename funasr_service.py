@@ -119,7 +119,7 @@ def deal_worker(task_id: str):
         )
         log.info(f"Worker {task_id} finished.")
     except Exception as e:
-        funasr_db.update_ali_asr_model_res_fail(task_id)
+        funasr_db.update_ali_asr_model_res_fail(task_id, traceback.format_exc())
         log.error(f"Worker error{e}")
         traceback.print_exc()
         return {"Worker error": str(e)}
