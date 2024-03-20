@@ -9,7 +9,6 @@ from mysql_service import funasr_db
 # 创建Kafka生产者
 producer = KafkaProducer(bootstrap_servers=ConfigInfo.kafka_consumer_bootstrap_servers)  # Kafka集群的地址
 
-
 # key = b"funasr-key"  # 消息的键（可选）
 # 关闭生产者
 # producer.close()

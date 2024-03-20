@@ -1,6 +1,12 @@
 import logging
 import os
 import sys
+
+# 获取当前文件所在目录的绝对路径
+current_dir = os.path.dirname(os.path.abspath(__file__))
+# 将根目录添加到 Python 解释器的搜索路径中
+root_dir = os.path.join(current_dir, '..')  # 假设根目录是当前目录的父目录
+sys.path.append(root_dir)
 from logging.handlers import TimedRotatingFileHandler
 
 def setup_logging(log_file):
