@@ -116,13 +116,13 @@ def consume_kafka():
             log.info(f"Received message: {message}")
             # 处理逻辑
             # funasr_service.handle_process(str(message.value.decode('utf-8')))
-            process_pool.apply_async(funasr_service.handle_process, str(message.value.decode('utf-8')))
+            process_pool.apply_async(funasr_service.handle_process, ((str(message.value.decode('utf-8'))),))
             # process = multiprocessing.Process(target=funasr_service.handle_process, args=((str(message.value.decode('utf-8'))),),)
             log.info(f"process:{process_pool}")
             # process.start()
             print("task handle")
-        process_pool.close()
-        process_pool.join()
+        # process_pool.close()
+        # process_pool.join()
     except Exception as e:
         traceback.print_exc()
         log.error("funasr consumer Exception: " + str(e))
