@@ -104,6 +104,7 @@ def multi_thread_consumer():
 
 
 process_pool = multiprocessing.Pool(processes=2)
+# process_pool.start()
 
 # 循环消费消息
 def consume_kafka():
@@ -120,6 +121,8 @@ def consume_kafka():
             # process_pool.close()
             # process_pool.join()
             print("task handle")
+        process_pool.close()
+        process_pool.join()
     except Exception as e:
         traceback.print_exc()
         log.error("funasr consumer Exception: " + str(e))
