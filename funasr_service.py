@@ -77,23 +77,23 @@ def deal_worker(task_id: str):
     要执行的函数，在子进程中运行
     """
     try:
-        res = funasr_db.select_ali_asr_model_res(task_id)
-        if res is None or isinstance(res, bool) or len(res) < 1:
+        sql_res = funasr_db.select_ali_asr_model_res(task_id)
+        if sql_res is None or isinstance(sql_res, bool) or len(sql_res) < 1:
             return
-        output_data = json.loads(res)[0]["output_data"]
+        output_data = sql_res[0]["output_data"]
         if output_data is not None:
             return
-        url = json.loads(res)[0]["file_url"]
+        url = sql_res[0]["file_url"]
         log.info(f"Worker {task_id} is running... url:{url}")
         consuming_start_time = time.perf_counter()
         # 解析音频
-        res = FunasrService(url).transform()
-        if len(res) < 1:
-            log.info("res: %s" % res)
-            funasr_db.update_ali_asr_model_res(task_id, res, 0)
+        output_res = FunasrService(url).transform()
+        if len(output_res) < 1:
+            log.info("output_res: %s" % output_res)
+            funasr_db.update_ali_asr_model_res(task_id, output_res, 0)
             return
-        sentence_info = res[0]["sentence_info"]
-        log.info("res.sentence_info: %s" % sentence_info)
+        sentence_info = output_res[0]["sentence_info"]
+        log.info("output_res.sentence_info: %s" % sentence_info)
         output = []
         content = ""
         spk = 0
