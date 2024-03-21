@@ -1,4 +1,5 @@
 import multiprocessing
+import threading
 import time
 from funasr import AutoModel
 from log.logger import log
@@ -64,6 +65,8 @@ class model_output():
 
 def handle_process(message: str):
     try:
+        log.info(f"""handle_process process name:{multiprocessing.current_process()},thread name:{threading.current_thread().name}，
+                Received task_id: {message}""")
         # 处理逻辑
         start_time = time.time()
         task_id = json.loads(message)["task_id"]
@@ -71,7 +74,7 @@ def handle_process(message: str):
         log.info("funasr_handle_process耗时:" + str(time.time() - start_time))
     except Exception as e:
         traceback.print_exc()
-        log.error("funasr consumer Exception: " + str(e))
+        log.error("funasr handle_process Exception: " + str(e))
 
 
 def deal_worker(task_id: str):
