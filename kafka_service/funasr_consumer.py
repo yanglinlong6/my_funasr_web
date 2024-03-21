@@ -64,7 +64,6 @@ class MultiThreadKafka(object):
         log.info(f"启动consume_kafka Thread name:{threading.current_thread().name}")
         # 消费消息并进行逻辑处理
         try:
-            process_pool = multiprocessing.Pool(processes=2)
             for message in consumer:
                 if message is None:
                     continue
@@ -73,12 +72,8 @@ class MultiThreadKafka(object):
                     f"""process name:{multiprocessing.current_process()},thread name:{threading.current_thread().name}，
                             Received message value: {message.value}""")
                 # 处理逻辑
-                start_time = time.time()
-                # funasr_service.handle_process(str(message.value.decode('utf-8')))
-                process_pool.apply_async(funasr_service.handle_process, (str(message.value.decode('utf-8'), )))
+                funasr_service.handle_process(str(message.value.decode('utf-8')))
                 print("task handle")
-                end_time = time.time()
-                log.info("handle_process耗时:" + str(end_time - start_time))
         except Exception as e:
             traceback.print_exc()
             log.error("funasr consumer Exception: " + str(e))
@@ -113,6 +108,7 @@ def consume_kafka():
     log.info(f"启动consume_kafka Thread name:{threading.current_thread().name}")
     # 消费消息并进行逻辑处理
     try:
+        process_pool = multiprocessing.Pool(processes=2)
         for message in consumer_new:
             if message is None:
                 continue
@@ -120,11 +116,9 @@ def consume_kafka():
             log.info(f"""process name:{multiprocessing.current_process()},thread name:{threading.current_thread().name}，
                     Received message value: {message.value}""")
             # 处理逻辑
-            start_time = time.time()
-            funasr_service.handle_process(str(message.value.decode('utf-8')))
+            # funasr_service.handle_process(str(message.value.decode('utf-8')))
+            process_pool.apply_async(funasr_service.handle_process, (str(message.value.decode('utf-8'), )))
             print("task handle")
-            end_time = time.time()
-            log.info("handle_process耗时:" + str(end_time - start_time))
     except Exception as e:
         traceback.print_exc()
         log.error("funasr consumer Exception: " + str(e))

@@ -115,7 +115,6 @@ def deal_worker(task_id: str):
         if content != "":
             output.append(model_output(spk, offset, duration, content).to_dict())
         json_output = json.dumps(output, ensure_ascii=False)
-        log.debug(f"output:{json_output}")
         execute_time = time.perf_counter() - consuming_start_time
         funasr_db.update_ali_asr_model_res(task_id, json_output, int((execute_time * 1000)))
         log.info(
