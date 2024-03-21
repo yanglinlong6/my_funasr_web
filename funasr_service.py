@@ -100,7 +100,7 @@ def deal_worker(task_id: str):
             funasr_db.update_ali_asr_model_res(task_id, output_res, 0)
             return
         sentence_info = output_res[0]["sentence_info"]
-        log.info("output_res.sentence_info: %s" % sentence_info)
+        # log.info("output_res.sentence_info: %s" % sentence_info)
         json_output = fine_grained_transform_output(sentence_info)
         execute_time = time.perf_counter() - consuming_start_time
         funasr_db.update_ali_asr_model_res(task_id, json_output, int((execute_time * 1000)))
