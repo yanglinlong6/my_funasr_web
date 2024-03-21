@@ -119,8 +119,8 @@ def consume_kafka():
             # 处理逻辑
             # funasr_service.handle_process(str(message.value.decode('utf-8')))
             process_pool.apply_async(funasr_service.handle_process, str(message.value.decode('utf-8')))
-            process_pool.close()
-            process_pool.join()
+            # process_pool.close()
+            # process_pool.join()
             print("task handle")
     except Exception as e:
         traceback.print_exc()
