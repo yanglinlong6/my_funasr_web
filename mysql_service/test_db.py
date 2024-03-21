@@ -1,15 +1,13 @@
 import time
 import traceback
-from mysql_service import mysql_pool
 from mysql.connector import pooling
 from log.logger import log
 from mysql_service import funasr_db
 from mysql_service import MysqlHelper
 from config import DbConect
 from mysql_service import mysql_utils
-from mysql_service.mysql_pool import MySQLConnectionPool
+from mysql_service.mysql_pool import ConnPool
 from config.config import ConfigInfo
-
 
 consuming_start_time = time.perf_counter()
 
@@ -29,9 +27,14 @@ sql = "INSERT INTO dj_smartcarlife.ali_asr_model_res (task_id,file_url,task_stat
 # select_res = mysql_utils.execute_sql("select * from ali_asr_model_res aamr;")
 # print(select_res)
 for i in range(1):
-    # res = mysql_pool.some_method()
-    res = funasr_db.select_ali_asr_model_wait()
-    print(res)
+    res1 = funasr_db.insert_ali_asr_model_res(task_id, url)
+    print("res1:%s" % res1)
+    res2 = funasr_db.update_ali_asr_model_res(task_id, sql, int(time.time()))
+    print("res2:%s" % res2)
+    res3 = funasr_db.select_ali_asr_model_res(task_id)
+    print("res3:%s" % res3)
+    res4 = funasr_db.select_ali_asr_model_wait()
+    print("res4:%s" % res4)
 try:
     # time.sleep(2)
     execute_time = time.perf_counter() - consuming_start_time
@@ -111,9 +114,3 @@ import json
 # res = execute_sql(SQL)
 # print(res)
 #
-
-
-
-
-
-

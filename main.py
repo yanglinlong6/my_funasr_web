@@ -203,7 +203,11 @@ async def create_url(param: UrlParam):
     except Exception as e:
         log.error(f"error：{e}")
         traceback.print_exc()
-        return {"error": str(e)}
+        return BaseResponse(
+            code=-1,
+            msg="error",
+            data=str(e)
+        )
 
 
 def start_kafka():
