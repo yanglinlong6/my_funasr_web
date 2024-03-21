@@ -103,12 +103,13 @@ def multi_thread_consumer():
     thread_kafka.main()
 
 
+process_pool = multiprocessing.Pool(processes=2)
+
 # 循环消费消息
 def consume_kafka():
     log.info(f"启动consume_kafka Thread name:{threading.current_thread().name}")
     # 消费消息并进行逻辑处理
     try:
-        process_pool = multiprocessing.Pool(processes=2)
         for message in consumer_new:
             if message is None:
                 continue
@@ -117,7 +118,9 @@ def consume_kafka():
                     Received message value: {message.value}""")
             # 处理逻辑
             # funasr_service.handle_process(str(message.value.decode('utf-8')))
-            process_pool.apply_async(funasr_service.handle_process, (str(message.value.decode('utf-8'), )))
+            process_pool.apply_async(funasr_service.handle_process, str(message.value.decode('utf-8')))
+            process_pool.close()
+            process_pool.join()
             print("task handle")
     except Exception as e:
         traceback.print_exc()

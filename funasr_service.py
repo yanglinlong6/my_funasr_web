@@ -1,3 +1,4 @@
+import multiprocessing
 import time
 from funasr import AutoModel
 from log.logger import log
@@ -58,6 +59,7 @@ class model_output():
             'duration': self.duration,
             'content': self.content
         }
+
 
 
 def handle_process(message: str):
