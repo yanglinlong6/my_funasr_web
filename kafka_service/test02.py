@@ -20,17 +20,15 @@ producer.flush()
 producer.close()
 
 
-res = funasr_db.select_ali_asr_model_wait()
-json_res = json.loads(res)
-# json_res = json_res.replace("'", "\"")
-print(f"json_res{json_res}")
-for item in json_res:
+wait_res = funasr_db.select_ali_asr_model_wait()
+print(f"json_res{wait_res}")
+for item in wait_res:
     print(f"item:{item}")
     task_id = item['task_id']
     data = {"task_id":task_id}
     message = json.dumps(data).encode('utf-8')
-    producer.send(ConfigInfo.kafka_consumer_analysis_topic, message)
-    print(f"success{task_id}")
+    # producer.send(ConfigInfo.kafka_consumer_analysis_topic, message)
+    print(f"success:{message}")
     # 等待所有消息发送完成
     producer.flush()
 # 关闭生产者

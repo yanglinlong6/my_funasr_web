@@ -8,8 +8,17 @@ consumer = KafkaConsumer(
 )
 
 # 循环消费消息
-for message in consumer:
-    # 从消息中获取键和值
-    key = message.key
-    value = message.value
-    print(f"Key: {key}, Value: {value}")
+# for message in consumer:
+#     # 从消息中获取键和值
+#     key = message.key
+#     value = message.value
+#     print(f"Key: {key}, Value: {value}")
+
+
+datas = ["", "   ", "1111","https","1http",]
+for data in datas:
+    data.replace(" ", "")
+    if data == "" or len(data) < 1 or not data.startswith("http"):
+        print(False)
+    else:
+        print(True)

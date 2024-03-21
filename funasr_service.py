@@ -62,10 +62,10 @@ class model_output():
         }
 
 
-
 def handle_process(message: str):
     try:
-        log.info(f"""handle_process process name:{multiprocessing.current_process()},thread name:{threading.current_thread().name}，
+        log.info(
+            f"""handle_process process name:{multiprocessing.current_process()},thread name:{threading.current_thread().name}，
                 Received task_id: {message}""")
         # 处理逻辑
         start_time = time.time()
@@ -101,25 +101,7 @@ def deal_worker(task_id: str):
             return
         sentence_info = output_res[0]["sentence_info"]
         log.info("output_res.sentence_info: %s" % sentence_info)
-        output = []
-        content = ""
-        spk = 0
-        duration = 0
-        offset = 0
-        for one in sentence_info:
-            duration = duration + (one["end"] - one["start"])
-            offset = one["start"]
-            if spk == one["spk"]:
-                content = content + one["text"]
-            else:
-                output.append(model_output(spk, offset, duration, content).to_dict())
-                duration = 0
-                content = one["text"]
-                spk = one["spk"]
-
-        if content != "":
-            output.append(model_output(spk, offset, duration, content).to_dict())
-        json_output = json.dumps(output, ensure_ascii=False)
+        json_output = fine_grained_transform_output(sentence_info)
         execute_time = time.perf_counter() - consuming_start_time
         funasr_db.update_ali_asr_model_res(task_id, json_output, int((execute_time * 1000)))
         log.info(
@@ -131,3 +113,32 @@ def deal_worker(task_id: str):
         log.error(f"Worker error{e}")
         traceback.print_exc()
         return {"Worker error": str(e)}
+
+
+def fine_grained_transform_output(sentence_info):
+    output = []
+    for one in sentence_info:
+        duration = one["end"] - one["start"]
+        output.append(model_output(one["spk"], one["start"], duration, one["text"]).to_dict())
+    json_output = json.dumps(output, ensure_ascii=False)
+    return json_output
+def merge_spk_transform_output(sentence_info):
+    output = []
+    content = ""
+    spk = 0
+    duration = 0
+    offset = 0
+    for one in sentence_info:
+        duration = duration + (one["end"] - one["start"])
+        offset = one["start"]
+        if spk == one["spk"]:
+            content = content + one["text"]
+        else:
+            output.append(model_output(spk, offset, duration, content).to_dict())
+            duration = 0
+            content = one["text"]
+            spk = one["spk"]
+    if content != "":
+        output.append(model_output(spk, offset, duration, content).to_dict())
+    json_output = json.dumps(output, ensure_ascii=False)
+    return json_output

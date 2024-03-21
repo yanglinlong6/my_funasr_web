@@ -1,6 +1,8 @@
 import time
 from funasr import AutoModel
 
+import funasr_service
+
 # paraformer-zh is a multi-functional asr model
 # use vad, punc, spk or not as you need
 model = AutoModel(
@@ -55,6 +57,9 @@ if content is not None:
     text = f'角色{spk + 1} : {content} -- 时长:{total_time}ms'
     print(text)
     write_text(text)
+
+res = funasr_service.fine_grained_transform_output(sentence_info)
+print(res)
 
 
 consuming_end_time = time.perf_counter()
