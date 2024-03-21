@@ -104,7 +104,7 @@ def multi_thread_consumer():
 
 
 process_pool = multiprocessing.Pool(processes=2)
-# process_pool.start()
+process_pool.start()
 
 # 循环消费消息
 def consume_kafka():
@@ -118,8 +118,6 @@ def consume_kafka():
             # 处理逻辑
             # funasr_service.handle_process(str(message.value.decode('utf-8')))
             process_pool.apply_async(funasr_service.handle_process, str(message.value.decode('utf-8')))
-            # process_pool.close()
-            # process_pool.join()
             print("task handle")
         process_pool.close()
         process_pool.join()
