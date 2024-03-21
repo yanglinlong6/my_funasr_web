@@ -183,8 +183,21 @@ class UrlParam(BaseModel):
 async def create_url(param: UrlParam):
     try:
         log.info(f"funasr create_url api param:{param}")
-        task_id = str(uuid.uuid1())
         url = param.url
+        if url is None:
+            return BaseResponse(
+                code=-1,
+                msg="error",
+                data="url is empty"
+            )
+        url.replace(" ", "")
+        if url == "" or len(url) < 1 or not url.startswith("http"):
+            return BaseResponse(
+                code=-1,
+                msg="error",
+                data="url format error"
+            )
+        task_id = str(uuid.uuid1())
         res = funasr_db.insert_ali_asr_model_res(task_id, url)
         if res is None or (isinstance(res, bool) and res is False):
             return BaseResponse(
@@ -223,7 +236,7 @@ def start_process():
 
 if __name__ == "__main__":
     log.info("funasr main starting...")
-    start_kafka()
+    start_process()
     funasr_producer.send_wait_task()
     save_path = "./audio/"
     if os.path.exists(save_path):

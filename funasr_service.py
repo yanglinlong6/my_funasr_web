@@ -84,6 +84,8 @@ def deal_worker(task_id: str):
         if output_data is not None:
             return
         url = sql_res[0]["file_url"]
+        if url == "" or len(url) < 1 or not url.startswith("http"):
+            return
         log.info(f"Worker {task_id} is running... url:{url}")
         consuming_start_time = time.perf_counter()
         # 解析音频
