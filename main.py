@@ -223,7 +223,7 @@ def start_process():
 
 if __name__ == "__main__":
     log.info("funasr main starting...")
-    funasr_consumer.multi_thread_consumer()
+    start_kafka()
     funasr_producer.send_wait_task()
     save_path = "./audio/"
     if os.path.exists(save_path):
