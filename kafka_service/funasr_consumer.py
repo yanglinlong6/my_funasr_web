@@ -64,6 +64,7 @@ class MultiThreadKafka(object):
         log.info(f"启动consume_kafka Thread name:{threading.current_thread().name}")
         # 消费消息并进行逻辑处理
         try:
+            process_pool = multiprocessing.Pool(processes=2)
             for message in consumer:
                 if message is None:
                     continue
@@ -73,7 +74,8 @@ class MultiThreadKafka(object):
                             Received message value: {message.value}""")
                 # 处理逻辑
                 start_time = time.time()
-                funasr_service.handle_process(str(message.value.decode('utf-8')))
+                # funasr_service.handle_process(str(message.value.decode('utf-8')))
+                process_pool.apply_async(funasr_service.handle_process, (str(message.value.decode('utf-8'), )))
                 print("task handle")
                 end_time = time.time()
                 log.info("handle_process耗时:" + str(end_time - start_time))
