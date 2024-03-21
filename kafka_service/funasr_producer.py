@@ -21,12 +21,11 @@ def send_message_analysis(message):
     producer.flush()
 
 def send_wait_task():
-    res = funasr_db.select_ali_asr_model_wait()
-    if res is None or isinstance(res, bool) or len(res) < 1:
+    wait_res = funasr_db.select_ali_asr_model_wait()
+    if wait_res is None or isinstance(wait_res, bool) or len(wait_res) < 1:
         return
-    json_res = json.loads(res)
-    print(f"服务启动推送等待任务：{json_res}")
-    for item in json_res:
+    print(f"服务启动推送等待任务：{wait_res}")
+    for item in wait_res:
         task_id = item['task_id']
         data = {"task_id": task_id}
         message = json.dumps(data).encode('utf-8')
