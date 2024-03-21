@@ -114,8 +114,6 @@ def consume_kafka():
             if message is None:
                 continue
             log.info(f"Received message: {message}")
-            log.info(f"""process name:{multiprocessing.current_process()},thread name:{threading.current_thread().name}，
-                    Received message value: {message.value}""")
             # 处理逻辑
             # funasr_service.handle_process(str(message.value.decode('utf-8')))
             process_pool.apply_async(funasr_service.handle_process, str(message.value.decode('utf-8')))
