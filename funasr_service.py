@@ -2,6 +2,8 @@ import multiprocessing
 import threading
 import time
 from funasr import AutoModel
+
+import kafka_service.funasr_producer
 from log.logger import log
 import json
 import traceback
@@ -112,6 +114,7 @@ def deal_worker(task_id: str):
         funasr_db.update_ali_asr_model_res_fail(task_id, str(e), traceback.format_exc())
         log.error(f"Worker error{e}")
         traceback.print_exc()
+        kafka_service.funasr_producer.send_task_id(task_id)
         return {"Worker error": str(e)}
 
 
