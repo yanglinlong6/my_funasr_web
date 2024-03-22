@@ -72,7 +72,7 @@ def consume_kafka():
     log.info(f"启动consume_kafka Thread name:{threading.current_thread().name}")
     # 消费消息并进行逻辑处理
     try:
-        process_pool = multiprocessing.Pool(processes=2)
+        process_pool = multiprocessing.Pool(processes=1)
         for message in consumer_new:
             if message is None:
                 continue
