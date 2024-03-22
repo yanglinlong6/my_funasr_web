@@ -99,7 +99,7 @@ def deal_worker(task_id: str):
         output_res = FunasrService(url).transform()
         if len(output_res) < 1:
             log.info("output_res: %s" % output_res)
-            funasr_db.update_ali_asr_model_res(task_id, output_res, 0)
+            funasr_db.update_ali_asr_model_res(task_id, str(output_res), 0)
             return
         sentence_info = output_res[0]["sentence_info"]
         # log.info("output_res.sentence_info: %s" % sentence_info)
