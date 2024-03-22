@@ -65,8 +65,8 @@ class model_output():
 def handle_process(message: str):
     try:
         log.info(
-            f"""handle_process process name:{multiprocessing.current_process()},thread name:{threading.current_thread().name}，
-                Received task_id: {message}""")
+            f"handle_process process name:{multiprocessing.current_process()},thread name:{threading.current_thread().name}，"
+            f"Received task_id: {message}")
         # 处理逻辑
         start_time = time.time()
         task_id = json.loads(message)["task_id"]
