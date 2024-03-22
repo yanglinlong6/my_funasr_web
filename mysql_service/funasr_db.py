@@ -35,7 +35,8 @@ def update_ali_asr_model_res(task_id: str, json_output: str, execute_time: int):
 
 def update_ali_asr_model_res_fail(task_id: str, exception: str):
     update_sql = (
-        f"update ali_asr_model_res t set t.task_status = 2, t.exception_log = %s where t.task_id = %s;")
+        f"update ali_asr_model_res t set t.task_status = 2, t.exception_log = %s,exception_limit = exception_limit + 1 "
+        f"where t.task_id = %s;")
     return pool.update_one(update_sql, (exception, task_id,))
 
 
@@ -49,5 +50,5 @@ def select_ali_asr_model_res(task_id: str):
 def select_ali_asr_model_wait():
     select_sql = (
         f"select id,task_id,file_url,task_status,output_data from ali_asr_model_res aamr where aamr.del_flag = 0 and "
-        f"aamr.output_data is null and aamr.task_status != %s;")
+        f"aamr.output_data is null and aamr.task_status != %s and exception_limit < 3;")
     return pool.select_all(select_sql, 1)

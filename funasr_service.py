@@ -39,7 +39,7 @@ class FunasrService(object):
 
     @timeit
     def transform(self):
-        res = model.generate(input=self.path, batch_size_s=200, hotword="""问界\n质保经理 80\n易损易耗件 80\n电瓶 80\nM5 80
+        res = model.generate(input=self.path, batch_size_s=100, hotword="""问界\n质保经理 80\n易损易耗件 80\n电瓶 80\nM5 80
                 \nM7 80\nM9 80\n石子 80\n橡胶棒 80\n电子助力泵 80\n电子真空助力泵 80\n充电桩 80\n密封圈 80\n4S店 80\n老化 80
                 """)
         # print(res)
@@ -122,6 +122,8 @@ def fine_grained_transform_output(sentence_info):
         output.append(model_output(one["spk"], one["start"], duration, one["text"]).to_dict())
     json_output = json.dumps(output, ensure_ascii=False)
     return json_output
+
+
 def merge_spk_transform_output(sentence_info):
     output = []
     content = ""
