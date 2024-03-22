@@ -33,11 +33,12 @@ def update_ali_asr_model_res(task_id: str, json_output: str, execute_time: int):
     return pool.update_one(update_sql, (json_output, execute_time, task_id,))
 
 
-def update_ali_asr_model_res_fail(task_id: str, exception: str):
+def update_ali_asr_model_res_fail(task_id: str, exception_msg: str, exception: str):
     update_sql = (
-        f"update ali_asr_model_res t set t.task_status = 2, t.exception_log = %s,exception_limit = exception_limit + 1 "
+        f"update ali_asr_model_res t set t.task_status = 2, t.exception_msg = %s, t.exception_log = %s, "
+        f"exception_limit = exception_limit + 1 "
         f"where t.task_id = %s;")
-    return pool.update_one(update_sql, (exception, task_id,))
+    return pool.update_one(update_sql, (exception_msg, exception, task_id,))
 
 
 def select_ali_asr_model_res(task_id: str):
