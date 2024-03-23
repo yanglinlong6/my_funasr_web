@@ -38,8 +38,7 @@ class MultiThreadKafka(object):
                 funasr_service.handle_process(str(message.value.decode('utf-8')))
                 print("task handle")
         except Exception as e:
-            traceback.print_exc()
-            log.error("funasr consumer Exception: " + str(e))
+            log.error("funasr consumer Exception: " + str(traceback.format_exc()))
 
     def operate(self):
         consumer = KafkaConsumer(
@@ -88,8 +87,7 @@ def consume_kafka():
         # process_pool.close()
         # process_pool.join()
     except Exception as e:
-        traceback.print_exc()
-        log.error("funasr consumer Exception: " + str(e))
+        log.error("funasr consumer Exception: " + str(traceback.format_exc()))
 
 # 循环消费消息
 # for message in consumer:

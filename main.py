@@ -214,8 +214,7 @@ async def create_url(param: UrlParam):
         log.info(f"response：{response}")
         return response
     except Exception as e:
-        log.error(f"error：{e}")
-        traceback.print_exc()
+        log.error(f"error：{traceback.format_exc()}")
         return BaseResponse(
             code=-1,
             msg="error",

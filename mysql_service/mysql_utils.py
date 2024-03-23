@@ -58,8 +58,7 @@ def select_sql(sql):
         log.info("execute_select result:%s" % res)
         return res
     except Exception as msg:
-        traceback.print_exc()
-        log.error("sql执行Exception: " + str(msg))
+        log.error("sql执行Exception: " + str(traceback.format_exc()))
     finally:
         cursor.close()
         conn.close()

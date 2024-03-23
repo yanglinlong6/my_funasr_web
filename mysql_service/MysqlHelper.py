@@ -76,8 +76,7 @@ class MysqlHelper:
             log.info("execute_modify result:%s" % res)
             result = True
         except Exception as e:
-            log.error(e)
-            traceback.print_exc()
+            log.error(traceback.format_exc())
             self.con.rollback
             result = False
         return result
@@ -99,8 +98,7 @@ class MysqlHelper:
             log.info("execute_select result:%s" % res)
             return res
         except Exception as e:
-            log.error(e)
-            traceback.print_exc()
+            log.error(traceback.format_exc())
             return False
         finally:
             pass
@@ -116,8 +114,7 @@ class MysqlHelper:
             res = self.cursor.fetchone
             return res
         except Exception as e:
-            log.error(e)
-            traceback.print_exc()
+            log.error(traceback.format_exc())
             return False
         finally:
             pass

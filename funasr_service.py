@@ -78,8 +78,7 @@ def handle_process(message: str):
         deal_worker(task_id)
         log.info("funasr_handle_process耗时:" + str(time.time() - start_time))
     except Exception as e:
-        traceback.print_exc()
-        log.error("funasr handle_process Exception: " + str(e))
+        log.error("funasr handle_process Exception: " + str(traceback.format_exc()))
 
 
 def deal_worker(task_id: str):
