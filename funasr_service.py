@@ -76,7 +76,7 @@ def handle_process(message: str):
         start_time = time.time()
         task_id = json.loads(message)["task_id"]
         deal_worker(task_id)
-        log.info("funasr_handle_process耗时:" + str(time.time() - start_time))
+        log.info(f"funasr_handle_process task_id:{task_id} 耗时:" + str(time.time() - start_time))
     except Exception as e:
         log.error("funasr handle_process Exception: " + str(traceback.format_exc()))
 
