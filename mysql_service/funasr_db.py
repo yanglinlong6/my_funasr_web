@@ -40,6 +40,13 @@ def update_ali_asr_model_res_fail(task_id: str, exception_msg: str, exception: s
         f"where t.task_id = %s;")
     return pool.update_one(update_sql, (exception_msg, exception, task_id,))
 
+def update_ali_asr_model_res_skip(task_id: str):
+    update_sql = (
+        f"update ali_asr_model_res t set t.task_status = 2,"
+        f"exception_limit = exception_limit + 1 "
+        f"where t.task_id = %s;")
+    return pool.update_one(update_sql, (task_id,))
+
 
 def select_ali_asr_model_res(task_id: str):
     select_sql = (
