@@ -95,6 +95,7 @@ def deal_worker(task_id: str):
         exception_msg = sql_res[0]["exception_msg"]
         if exception_msg is not None or exception_msg == "list index out of range" \
                 or exception_msg == "Unspecified internal error." \
+                or str(exception_msg).startswith("HTTPSConnectionPool") \
                 or exception_msg == "local variable 'raw_text' referenced before assignment":
             funasr_db.update_ali_asr_model_res_skip(task_id)
             return
