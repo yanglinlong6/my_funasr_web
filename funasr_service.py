@@ -121,7 +121,7 @@ def deal_worker(task_id: str):
         log.error(f"Worker error：{e}")
         funasr_db.update_ali_asr_model_res_fail(task_id, str(e), traceback.format_exc())
         traceback.print_exc()
-        kafka_service.funasr_producer.send_task_id(task_id)
+        # kafka_service.funasr_producer.send_task_id(task_id)
 
 
 def fine_grained_transform_output(sentence_info):
