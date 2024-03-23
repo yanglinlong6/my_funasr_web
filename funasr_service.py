@@ -94,7 +94,8 @@ def deal_worker(task_id: str):
         if output_data is not None:
             return
         exception_msg = sql_res[0]["exception_msg"]
-        if exception_msg is not None and exception_msg == "list index out of range":
+        if exception_msg is not None and exception_msg == "list index out of range" \
+                and exception_msg == "Unspecified internal error.":
             return
         url = sql_res[0]["file_url"]
         if url == "" or len(url) < 1 or not url.startswith("http"):
