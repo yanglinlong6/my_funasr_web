@@ -96,6 +96,7 @@ def deal_worker(task_id: str):
         if exception_msg is not None or exception_msg == "list index out of range" \
                 or exception_msg == "Unspecified internal error." \
                 or exception_msg == "local variable 'raw_text' referenced before assignment":
+            funasr_db.update_ali_asr_model_res_skip(task_id)
             return
         url = sql_res[0]["file_url"]
         if url == "" or len(url) < 1 or not url.startswith("http"):
