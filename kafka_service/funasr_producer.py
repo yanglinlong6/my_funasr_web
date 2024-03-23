@@ -1,4 +1,5 @@
 import json
+import traceback
 import uuid
 
 from log.logger import log
@@ -32,9 +33,14 @@ def send_wait_task():
 
 
 def send_task_id(task_id: str):
-    data = {"task_id": task_id}
-    message = json.dumps(data).encode('utf-8')
-    producer.send(ConfigInfo.kafka_consumer_analysis_topic, message)
-    print(f"send success{task_id}")
-    # 等待所有消息发送完成
-    producer.flush()
+    try:
+        data = {"task_id": task_id}
+        message = json.dumps(data).encode('utf-8')
+        producer.send(ConfigInfo.kafka_consumer_analysis_topic, message)
+        log.info(f"send success{task_id}")
+    except Exception as e:
+        log.info(f"send task_id：{task_id} error：{traceback.format_exc()}")
+    finally:
+        # 等待所有消息发送完成
+        producer.flush()
+
