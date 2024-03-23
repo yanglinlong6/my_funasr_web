@@ -43,7 +43,9 @@ def update_ali_asr_model_res_fail(task_id: str, exception_msg: str, exception: s
 
 def select_ali_asr_model_res(task_id: str):
     select_sql = (
-        f"select id,task_id,file_url,task_status,output_data from ali_asr_model_res aamr where del_flag = 0 and "
+        f"select id,task_id,file_url,task_status,output_data,exception_msg"
+        f" from ali_asr_model_res aamr"
+        f" where del_flag = 0 and "
         f"task_id = %s and exception_limit < 3;")
     return pool.select_all(select_sql, (task_id,))
 
