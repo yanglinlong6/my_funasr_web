@@ -100,7 +100,7 @@ def deal_worker(task_id: str):
                 or exception_msg == "local variable 'raw_text' referenced before assignment":
             funasr_db.update_ali_asr_model_res_skip(task_id)
             return
-        funasr_db.update_process_task(task_id,str(multiprocessing.current_process()))
+        funasr_db.update_process_task(task_id,str(multiprocessing.current_process().name))
         url = sql_res[0]["file_url"]
         if url == "" or len(url) < 1 or not url.startswith("http"):
             funasr_db.update_ali_asr_model_res_skip(task_id)
