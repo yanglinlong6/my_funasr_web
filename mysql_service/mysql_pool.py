@@ -51,7 +51,10 @@ class ConnPool:
         result = cursor.fetchall()
         self.close(conn, cursor)
         log.info(f"execute_select_all result:{result}")
-        return result
+        if str(result) == "()":
+            return None
+        else:
+            return result
 
     def insert_one(self, sql, args):
         """插入单条数据"""

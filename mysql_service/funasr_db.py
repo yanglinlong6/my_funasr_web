@@ -35,30 +35,46 @@ def update_ali_asr_model_res(task_id: str, json_output: str, execute_time: int):
 
 def update_ali_asr_model_res_fail(task_id: str, exception_msg: str, exception: str):
     update_sql = (
-        f"update ali_asr_model_res t set t.task_status = 2, t.exception_msg = %s, t.exception_log = %s, "
-        f"exception_limit = exception_limit + 1 "
-        f"where t.task_id = %s;")
+        "update ali_asr_model_res t set t.task_status = 2, t.exception_msg = %s, t.exception_log = %s, "
+        "exception_limit = exception_limit + 1 "
+        "where t.task_id = %s;")
     return pool.update_one(update_sql, (exception_msg, exception, task_id,))
+
 
 def update_ali_asr_model_res_skip(task_id: str):
     update_sql = (
-        f"update ali_asr_model_res t set t.task_status = 2,"
-        f"exception_limit = exception_limit + 1 "
-        f"where t.task_id = %s;")
+        "update ali_asr_model_res t set t.task_status = 2,"
+        "exception_limit = exception_limit + 1 "
+        "where t.task_id = %s;")
     return pool.update_one(update_sql, (task_id,))
 
 
 def select_ali_asr_model_res(task_id: str):
     select_sql = (
-        f"select id,task_id,file_url,task_status,output_data,exception_msg"
-        f" from ali_asr_model_res aamr"
-        f" where del_flag = 0 and "
-        f"task_id = %s and exception_limit < 3;")
+        "select id,task_id,file_url,task_status,output_data,exception_msg"
+        " from ali_asr_model_res aamr"
+        " where del_flag = 0 and "
+        "task_id = %s and exception_limit < 3;")
     return pool.select_all(select_sql, (task_id,))
 
 
 def select_ali_asr_model_wait():
     select_sql = (
-        f"select id,task_id,file_url,task_status,output_data from ali_asr_model_res aamr where aamr.del_flag = 0 and "
-        f"aamr.output_data is null and aamr.task_status != %s and exception_limit < 3;")
+        "select id,task_id,file_url,task_status,output_data from ali_asr_model_res aamr where aamr.del_flag = 0 and "
+        "aamr.output_data is null and aamr.task_status != %s and exception_limit < 3;")
     return pool.select_all(select_sql, 1)
+
+
+def select_process_fail_task(process_name: str):
+    select_sql = (
+        "select id,task_id,file_url,task_status from ali_asr_model_res aamr where aamr.del_flag = 0 "
+        "and aamr.task_status = 0 and aamr.execute_process_name = %s;"
+    )
+    return pool.select_all(select_sql, (process_name))
+
+
+def update_process_task(task_id: str, process_name: str):
+    update_sql = (
+        "update ali_asr_model_res t set t.execute_process_name = %s where task_id = %s;"
+    )
+    return pool.update_one(update_sql, (process_name, task_id))

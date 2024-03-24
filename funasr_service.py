@@ -2,12 +2,10 @@ import multiprocessing
 import threading
 import time
 from funasr import AutoModel
-
-import kafka_service.funasr_producer
+from kafka_service import funasr_producer
 from log.logger import log
 import json
 import traceback
-
 from mysql_service import funasr_db
 
 # paraformer-zh is a multi-functional asr model
@@ -18,10 +16,13 @@ model = AutoModel(
     vad_model="fsmn-vad",
     punc_model="ct-punc-c",
     spk_model="cam++",
-    ncpu=8,
+    ncpu=4,
     device="cpu",
     batch_size_s=100,
     batch_size_threshold_s=60 * 60
+#     model="iic/speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+#     vad_model="iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
+#     punc_model="iic/punc_ct-transformer_cn-en-common-vocab471067-large",
 )
 
 
@@ -99,8 +100,10 @@ def deal_worker(task_id: str):
                 or exception_msg == "local variable 'raw_text' referenced before assignment":
             funasr_db.update_ali_asr_model_res_skip(task_id)
             return
+        funasr_db.update_process_task(task_id,str(multiprocessing.current_process()))
         url = sql_res[0]["file_url"]
         if url == "" or len(url) < 1 or not url.startswith("http"):
+            funasr_db.update_ali_asr_model_res_skip(task_id)
             return
         log.info(f"Worker {task_id} is running... url:{url}")
         consuming_start_time = time.perf_counter()
@@ -111,8 +114,8 @@ def deal_worker(task_id: str):
             funasr_db.update_ali_asr_model_res(task_id, str(output_res), 0)
             return
         sentence_info = output_res[0]["sentence_info"]
-        # log.info("output_res.sentence_info: %s" % sentence_info)
         json_output = fine_grained_transform_output(sentence_info)
+        # log.info("json_output: %s" % json_output)
         execute_time = time.perf_counter() - consuming_start_time
         funasr_db.update_ali_asr_model_res(task_id, json_output, int((execute_time * 1000)))
         log.info(
@@ -122,7 +125,7 @@ def deal_worker(task_id: str):
     except Exception as e:
         log.error(f"Worker error：{traceback.format_exc()}")
         funasr_db.update_ali_asr_model_res_fail(task_id, str(e), traceback.format_exc())
-        kafka_service.funasr_producer.send_task_id(task_id)
+        funasr_producer.send_task_id(task_id)
 
 
 def fine_grained_transform_output(sentence_info):
