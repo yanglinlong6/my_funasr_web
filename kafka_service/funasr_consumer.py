@@ -108,8 +108,8 @@ def consumer_process_init():
         process_name = str(multiprocessing.current_process().name)
         log.info(f"consumer_process_init process_name:{process_name}")
         res = funasr_db.select_process_fail_task(process_name)
-        if res is not None:
-            funasr_producer.send_task_id(res[0]["task_id"])
+        # if res is not None:
+        #     funasr_producer.send_task_id(res[0]["task_id"])
     except Exception as e:
         log.error(f"consumer_process_init_error process_name:{process_name}", e)
 
