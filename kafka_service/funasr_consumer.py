@@ -85,7 +85,7 @@ def consume_kafka():
             # funasr_service.handle_process(str(message.value.decode('utf-8')))
             arg = str(message.value.decode('utf-8'))
             log.info(f"arg:{arg},process_pool1:{process_pool}")
-            process_pool.apply_async(func=funasr_service.handle_process, arg=(arg,), callback=None,
+            process_pool.apply_async(func=funasr_service.handle_process, args=(arg,), callback=None,
                                      error_callback=consumer_process_error_callback)
             # process = multiprocessing.Process(target=funasr_service.handle_process, args=((str(message.value.decode('utf-8'))),),)
             # process.start()
