@@ -105,7 +105,7 @@ def consume_kafka():
 
 def consumer_process_init():
     try:
-        process_name = str(multiprocessing.current_process())
+        process_name = str(multiprocessing.current_process().name)
         log.info(f"consumer_process_init process_name:{process_name}")
         res = funasr_db.select_process_fail_task(process_name)
         if res is not None:
