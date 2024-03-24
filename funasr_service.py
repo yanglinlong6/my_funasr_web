@@ -126,7 +126,8 @@ def deal_worker(task_id: str):
     except Exception as e:
         log.error(f"Worker error：{traceback.format_exc()}")
         funasr_db.update_ali_asr_model_res_fail(task_id, str(e), traceback.format_exc())
-        funasr_producer.send_task_id(task_id)
+        # funasr_producer.send_task_id(task_id)
+        return
 
 
 def fine_grained_transform_output(sentence_info):
