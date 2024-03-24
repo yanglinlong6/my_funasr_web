@@ -1,3 +1,4 @@
+import json
 import multiprocessing
 import threading
 import time
@@ -10,7 +11,6 @@ from config.config import ConfigInfo
 from concurrent.futures import ThreadPoolExecutor
 from kafka.structs import TopicPartition
 from mysql_service import funasr_db
-from kafka_service import funasr_producer
 
 # 配置 Kafka 消费者
 consumer_new = KafkaConsumer(
@@ -69,8 +69,6 @@ def multi_thread_consumer():
     thread_kafka.main()
 
 
-
-
 # 循环消费消息
 def consume_kafka():
     log.info(f"启动consume_kafka Thread name:{threading.current_thread().name}")
@@ -85,7 +83,8 @@ def consume_kafka():
             # funasr_service.handle_process(str(message.value.decode('utf-8')))
             arg = str(message.value.decode('utf-8'))
             log.info(f"arg:{arg},process_pool1:{process_pool}")
-            process_pool.apply_async(func=funasr_service.handle_process, args=(arg,), callback=None,
+            process_pool.apply_async(func=funasr_service.handle_process, args=(arg,),
+                                     callback=consumer_process_callback,
                                      error_callback=consumer_process_error_callback)
             # process = multiprocessing.Process(target=funasr_service.handle_process, args=((str(message.value.decode('utf-8'))),),)
             # process.start()
@@ -108,14 +107,23 @@ def consumer_process_init():
         process_name = str(multiprocessing.current_process().name)
         log.info(f"consumer_process_init process_name:{process_name}")
         res = funasr_db.select_process_fail_task(process_name)
-        # if res is not None:
-        #     funasr_producer.send_task_id(res[0]["task_id"])
+        if res is not None:
+            data = {"task_id": res[0]["task_id"]}
+            message = json.dumps(data).encode('utf-8')
+            funasr_service.handle_process(str(message))
     except Exception as e:
         log.error(f"consumer_process_init_error process_name:{process_name}", e)
 
 
-def consumer_process_callback():
-    log.info(f"consumer_process_callback:{multiprocessing.current_process().name}")
+def consumer_process_callback(res):
+    log.info(f"consumer_process_callback:{multiprocessing.current_process().name}, res:{res}")
+    count = funasr_db.select_process_all_end()
+    if count is not None and int(count) == 0:
+        res = funasr_db.select_ali_asr_model_wait()
+        if res is not None and len(res) > 0:
+            data = {"task_id": res[0]["task_id"]}
+            message = json.dumps(data).encode('utf-8')
+            funasr_service.handle_process(str(message))
 
 
 def consumer_process_error_callback(err):

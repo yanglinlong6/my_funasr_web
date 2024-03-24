@@ -78,3 +78,10 @@ def update_process_task(task_id: str, process_name: str):
         "update ali_asr_model_res t set t.execute_process_name = %s where task_id = %s;"
     )
     return pool.update_one(update_sql, (process_name, task_id))
+
+def select_process_all_end():
+    sql = (
+        "select count(aamr.id) from ali_asr_model_res aamr where aamr.del_flag = 0 "
+        "and aamr.execute_process_name is not null and aamr.task_status = %s;"
+    )
+    return pool.select_all(sql, (0))
