@@ -115,7 +115,7 @@ def consumer_process_init():
 
 
 def consumer_process_callback():
-    pass
+    log.info(f"consumer_process_callback:{multiprocessing.current_process().name}")
 
 
 def consumer_process_error_callback(e):
