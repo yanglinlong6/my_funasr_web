@@ -70,14 +70,15 @@ class model_output():
 
 def handle_process(message: str):
     try:
+        process = multiprocessing.current_process()
         log.info(
-            f"handle_process_start process_name:{multiprocessing.current_process()},thread name:{threading.current_thread().name}，"
+            f"handle_process_start process:{process},thread name:{threading.current_thread().name}，"
             f"Received task_id: {message}")
         # 处理逻辑
         start_time = time.time()
         task_id = json.loads(message)["task_id"]
         deal_worker(task_id)
-        log.info(f"handle_process_end task_id:{task_id} 耗时:" + str(time.time() - start_time))
+        log.info(f"handle_process_end process:{process} task_id:{task_id} 耗时:" + str(time.time() - start_time))
     except Exception as e:
         log.error("funasr handle_process Exception: " + str(traceback.format_exc()))
 
