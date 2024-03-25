@@ -243,9 +243,9 @@ if __name__ == "__main__":
     if os.path.exists(save_path):
         shutil.rmtree(save_path)
     parser = argparse.ArgumentParser()
+    parser.add_argument("--env", type=str, default="dev")
     parser.add_argument("--host", type=str, default="0.0.0.0")
     parser.add_argument("--port", type=int, default=7888)
-    parser.add_argument("--env", type=str, default="dev")
     args = parser.parse_args()
     # args = parser.parse_known_args()
     uvicorn.run(
