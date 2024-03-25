@@ -20,9 +20,9 @@ model = AutoModel(
     device="cpu",
     batch_size_s=100,
     batch_size_threshold_s=60 * 60
-#     model="iic/speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
-#     vad_model="iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
-#     punc_model="iic/punc_ct-transformer_cn-en-common-vocab471067-large",
+    #     model="iic/speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+    #     vad_model="iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
+    #     punc_model="iic/punc_ct-transformer_cn-en-common-vocab471067-large",
 )
 
 
@@ -101,7 +101,7 @@ def deal_worker(task_id: str):
                 or exception_msg == "local variable 'raw_text' referenced before assignment":
             funasr_db.update_ali_asr_model_res_skip(task_id)
             return
-        funasr_db.update_process_task(task_id,str(multiprocessing.current_process().name))
+        funasr_db.update_process_task(task_id, str(multiprocessing.current_process().name))
         url = sql_res[0]["file_url"]
         if url == "" or len(url) < 1 or not url.startswith("http"):
             funasr_db.update_ali_asr_model_res_skip(task_id)
@@ -159,3 +159,15 @@ def merge_spk_transform_output(sentence_info):
         output.append(model_output(spk, offset, duration, content).to_dict())
     json_output = json.dumps(output, ensure_ascii=False)
     return json_output
+
+
+def task_compensate_send():
+    try:
+        log.info("task_compensate_send start")
+        res = funasr_db.select_time_out_task()
+        if res is not None and len(res) > 0:
+            for item in res:
+                funasr_producer.send_task_id(item["task_id"])
+        log.info("task_compensate_send end")
+    except Exception as e:
+        log.error("task_compensate_send error", e)

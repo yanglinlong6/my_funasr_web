@@ -117,13 +117,13 @@ def consumer_process_init():
 
 def consumer_process_callback(res):
     log.info(f"consumer_process_callback:{multiprocessing.current_process().name}, res:{res}")
-    count = funasr_db.select_process_all_end()
-    if count is not None and int(count) == 0:
-        res = funasr_db.select_ali_asr_model_wait()
-        if res is not None and len(res) > 0:
-            data = {"task_id": res[0]["task_id"]}
-            message = json.dumps(data).encode('utf-8')
-            funasr_service.handle_process(str(message))
+    # count = funasr_db.select_process_all_end()
+    # if count is not None and int(count) == 0:
+    #     res = funasr_db.select_ali_asr_model_wait()
+    #     if res is not None and len(res) > 0:
+    #         data = {"task_id": res[0]["task_id"]}
+    #         message = json.dumps(data).encode('utf-8')
+    #         funasr_service.handle_process(str(message))
 
 
 def consumer_process_error_callback(err):
