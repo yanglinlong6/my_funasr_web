@@ -73,18 +73,18 @@ def consume_kafka():
     log.info(f"启动consume_kafka Thread name:{threading.current_thread().name}")
     # 消费消息并进行逻辑处理
     try:
-        process_pool = multiprocessing.Pool(processes=1, initializer=consumer_process_init)
+        # process_pool = multiprocessing.Pool(processes=1, initializer=consumer_process_init)
         for message in consumer_new:
             if message is None:
                 continue
             log.info(f"Received message: {message}")
             # 处理逻辑
-            # funasr_service.handle_process(str(message.value.decode('utf-8')))
-            arg = str(message.value.decode('utf-8'))
-            log.info(f"arg:{arg},process_pool1:{process_pool}")
-            process_pool.apply_async(func=funasr_service.handle_process, args=(arg,),
-                                     callback=consumer_process_callback,
-                                     error_callback=consumer_process_error_callback)
+            funasr_service.handle_process(str(message.value.decode('utf-8')))
+            # arg = str(message.value.decode('utf-8'))
+            # log.info(f"arg:{arg},process_pool1:{process_pool}")
+            # process_pool.apply_async(func=funasr_service.handle_process, args=(arg,),
+            #                          callback=consumer_process_callback,
+            #                          error_callback=consumer_process_error_callback)
             # process = multiprocessing.Process(target=funasr_service.handle_process, args=((str(message.value.decode('utf-8'))),),)
             # process.start()
             print("task handle")
