@@ -119,9 +119,6 @@ def deal_worker(task_id: str):
             return
         sentence_info = output_res[0]["sentence_info"]
         json_output = fine_grained_transform_output(sentence_info)
-        json_output = json_output.replace("m 五", "M5")
-        json_output = json_output.replace("m 七", "M7")
-        json_output = json_output.replace("m 九", "M9")
         log.info("json_output: %s" % json_output)
         execute_time = time.perf_counter() - consuming_start_time
         funasr_db.update_ali_asr_model_res(task_id, json_output, int((execute_time * 1000)))
@@ -142,6 +139,7 @@ def fine_grained_transform_output(sentence_info):
         duration = one["end"] - one["start"]
         output.append(model_output(one["spk"], one["start"], duration, one["text"]).to_dict())
     json_output = json.dumps(output, ensure_ascii=False)
+    json_output = json_output.replace("m 五", "M5").replace("m 七", "M7").replace("m 九", "M9")
     return json_output
 
 
