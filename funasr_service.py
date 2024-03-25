@@ -45,7 +45,7 @@ class FunasrService(object):
 
     @timeit
     def transform(self):
-        res = model.generate(input=self.path, batch_size_s=300,
+        res = model.generate(input=self.path, batch_size_s=1,
                              hotword="问界 100\n质保经理 100\n易损易耗件 100\n电瓶 100\nM5 100\nM7 100\nM9 100\n石子 100"
                                      "\n橡胶棒 100\n电子助力泵 100\n电子真空助力泵 100\n充电桩 100\n密封圈 100\n4S店 100\n老化 100"
                                      "\n打死 100\n油车 100\n电车 100\n备忘录 100\n自费 100\n胶套求成密封圈 100\n安信无忧 100"
