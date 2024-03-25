@@ -1,16 +1,15 @@
 class Config:
     DEBUG = False
-    env = 'dev'
+    env = 'release'
     # 数据库连接配置
-    host='192.168.3.227'
-    port = 3306
-    user = 'dev_user'
-    password = 'df234fl'
-    database = 'glsx_car_service'
+    host='supplychain.db.glsx.com'
+    port = 13306
+    user = 'biz_dj_smartcarlife'
+    password = '[已加密]204db0d16a54807b8822481c6612513a'
+    database = 'dj_smartcarlife'
     # Kafka consumer配置
-    kafka_consumer_bootstrap_servers = '192.168.3.131:9092'
-    kafka_consumer_group_id = 'ocr_consumer_dev'
+    kafka_consumer_bootstrap_servers = 'newbiz.kafka.zk.glsx.com:9094'
+    kafka_consumer_group_id = 'funasr_release'
     kafka_consumer_auto_offset_reset = 'earliest'
-    kafka_consumer_topic = 'ocr_topic'
+    kafka_consumer_analysis_topic = 'funasr_analysis_topic'
     charset = 'utf8'
-#

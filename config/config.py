@@ -3,9 +3,13 @@ from log.logger import log
 
 class ConfigInfo:
     environment = sys.argv[1] if len(sys.argv) > 1 else "dev"
+    log.info(f"environment：{environment}")
     # environment = os.environ.get('ENV')
-    if environment == 'pro':
+    if environment == 'release':
         from config.config_release import Config
+        log.info(vars(Config))
+    elif environment == 'beta':
+        from config.config_beta import Config
         log.info(vars(Config))
     elif environment == 'test':
         from config.config_test import Config

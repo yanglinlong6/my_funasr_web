@@ -6,7 +6,6 @@ import traceback
 import funasr_service
 from kafka import KafkaConsumer
 from log.logger import log
-from mysql.connector import pooling
 from config.config import ConfigInfo
 from concurrent.futures import ThreadPoolExecutor
 from kafka.structs import TopicPartition
