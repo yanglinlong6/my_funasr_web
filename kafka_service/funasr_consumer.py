@@ -102,16 +102,16 @@ def consume_kafka():
 #     funasr_service.handle_process(str(message.value.decode('utf-8')))
 
 def consumer_process_init():
-    try:
-        process_name = str(multiprocessing.current_process().name)
-        log.info(f"consumer_process_init process_name:{process_name}")
-        res = funasr_db.select_process_fail_task(process_name)
-        if res is not None:
-            data = {"task_id": res[0]["task_id"]}
-            message = json.dumps(data).encode('utf-8')
-            funasr_service.handle_process(str(message))
-    except Exception as e:
-        log.error(f"consumer_process_init_error process_name:{process_name}", e)
+    process_name = str(multiprocessing.current_process().name)
+    log.info(f"consumer_process_init process_name:{process_name}")
+    # try:
+    #     res = funasr_db.select_process_fail_task(process_name)
+    #     if res is not None:
+    #         data = {"task_id": res[0]["task_id"]}
+    #         message = json.dumps(data).encode('utf-8')
+    #         funasr_service.handle_process(str(message))
+    # except Exception as e:
+    #     log.error(f"consumer_process_init_error process_name:{process_name}", e)
 
 
 def consumer_process_callback(res):
