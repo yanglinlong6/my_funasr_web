@@ -2,7 +2,7 @@ import sys
 from log.logger import log
 
 class ConfigInfo:
-    environment = sys.argv[1] if len(sys.argv) > 1 else "test"
+    environment = sys.argv[2] if len(sys.argv) > 1 else "test"
     log.info(f"environment：{environment}")
     # environment = os.environ.get('ENV')
     if environment == 'release':
