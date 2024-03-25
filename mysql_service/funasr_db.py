@@ -91,7 +91,7 @@ def select_process_all_end():
 def select_time_out_task():
     sql = (
         "select id,task_id,file_url,task_status from ali_asr_model_res aamr where aamr.del_flag = 0 "
-        "and aamr.output_data is null and aamr.execute_process_name is not null and exception_limit < 3"
+        "and aamr.output_data is null and aamr.execute_process_name is not null and exception_limit < 3 "
         "and aamr.updated_time < TIMESTAMPADD(MINUTE, -%s, NOW());"
     )
     return pool.select_all(sql, (30))
