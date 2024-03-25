@@ -45,9 +45,12 @@ class FunasrService(object):
 
     @timeit
     def transform(self):
-        res = model.generate(input=self.path, batch_size_s=1, hotword="""问界\n质保经理 80\n易损易耗件 80\n电瓶 80\nM5 80
-                \nM7 80\nM9 80\n石子 80\n橡胶棒 80\n电子助力泵 80\n电子真空助力泵 80\n充电桩 80\n密封圈 80\n4S店 80\n老化 80
-                """)
+        res = model.generate(input=self.path, batch_size_s=300,
+                             hotword="问界 100\n质保经理 100\n易损易耗件 100\n电瓶 100\nM5 100\nM7 100\nM9 100\n石子 100"
+                                     "\n橡胶棒 100\n电子助力泵 100\n电子真空助力泵 100\n充电桩 100\n密封圈 100\n4S店 100\n老化 100"
+                                     "\n打死 100\n油车 100\n电车 100\n备忘录 100\n自费 100\n胶套求成密封圈 100\n安信无忧 100"
+                                     "\n全车易损耗件 100\n厂家 100\n喷漆 100\n封釉 100\n雾化 100\n里程 100\n延保 100\n外地牌 100"
+                                     "\n轮胎 100\n胶条 100\n漆面 100")
         # print(res)
         return res
 
@@ -116,7 +119,10 @@ def deal_worker(task_id: str):
             return
         sentence_info = output_res[0]["sentence_info"]
         json_output = fine_grained_transform_output(sentence_info)
-        # log.info("json_output: %s" % json_output)
+        json_output = json_output.replace("m 五", "M5")
+        json_output = json_output.replace("m 七", "M7")
+        json_output = json_output.replace("m 九", "M9")
+        log.info("json_output: %s" % json_output)
         execute_time = time.perf_counter() - consuming_start_time
         funasr_db.update_ali_asr_model_res(task_id, json_output, int((execute_time * 1000)))
         log.info(
