@@ -52,7 +52,7 @@ class ConnPool:
         self.close(conn, cursor)
         log.info(f"execute_select_all result:{result}")
         if str(result) == "()":
-            return None
+            return []
         else:
             return result
 
