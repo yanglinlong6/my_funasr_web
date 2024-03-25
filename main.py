@@ -11,6 +11,7 @@ import uuid
 import pydantic
 import uvicorn
 import sys
+from utils import ap_scheduler_util
 from fastapi import FastAPI, File, UploadFile
 from funasr_service import FunasrService
 from pydantic import BaseModel
@@ -237,6 +238,7 @@ if __name__ == "__main__":
     log.info("funasr main starting...")
     start_kafka()
     funasr_producer.send_wait_task()
+    ap_scheduler_util.scheduler_start()
     save_path = "./audio/"
     if os.path.exists(save_path):
         shutil.rmtree(save_path)
