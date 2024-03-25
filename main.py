@@ -228,8 +228,9 @@ def start_kafka():
     kafka_thread.daemon = True  # 将线程设置为守护线程，当主线程结束时，该线程也会自动结束
     kafka_thread.start()
 
+
 def start_process():
-    process = multiprocessing.Process(target=funasr_consumer.consume_kafka,)
+    process = multiprocessing.Process(target=funasr_consumer.consume_kafka, )
     log.info(f"process:{process}")
     process.start()
 
