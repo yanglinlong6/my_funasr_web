@@ -1,6 +1,6 @@
 class Config:
     DEBUG = False
-    env = 'test'
+    env = 'dev'
     # 数据库连接配置
     host='192.168.1.39'
     port = 3306
