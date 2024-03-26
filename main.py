@@ -9,12 +9,13 @@ import shutil
 import threading
 import time
 import uuid
+import pydantic
 import uvicorn
 import sys
 from utils import ap_scheduler_util
 from fastapi import FastAPI, File, UploadFile
 from funasr_service import FunasrService
-from pydantic import BaseModel,Field
+from pydantic import BaseModel
 from mysql_service import funasr_db
 from kafka_service import funasr_consumer
 
@@ -28,10 +29,10 @@ app = FastAPI()
 
 
 class BaseResponse(BaseModel):
-    code: int = Field(200, description="HTTP status code")
-    msg: str = Field("success", description="HTTP status message")
-    data: object = Field([], description="HTTP return data")
-    time_consuming: int = Field(
+    code: int = pydantic.Field(200, description="HTTP status code")
+    msg: str = pydantic.Field("success", description="HTTP status message")
+    data: object = pydantic.Field([], description="HTTP return data")
+    time_consuming: int = pydantic.Field(
         11, description="HTTP return data time consuming"
     )
 
