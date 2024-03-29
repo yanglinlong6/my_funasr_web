@@ -6,10 +6,17 @@ import funasr_service
 # paraformer-zh is a multi-functional asr model
 # use vad, punc, spk or not as you need
 model = AutoModel(
-    model="paraformer-zh",
+    # model="paraformer-zh",
+    # model="paraformer-zh-spk",
+    model="iic/speech_paraformer-large-vad-punc-spk_asr_nat-zh-cn",
+    model_revision="v2.0.4",
     vad_model="fsmn-vad",
-    punc_model="ct-punc-c",
-    spk_model="cam++",
+    # punc_model="ct-punc-c",
+    punc_model="ct-punc",
+    # spk_model="cam++",
+    spk_model="iic/speech_campplus_speaker-diarization_common",
+    spk_model_revision="v1.0.0",
+    # spk_model="iic/speech_eres2net-large_speaker-diarization_common",
     # openai_model="Whisper-large-v3",
     ncpu=8,
 )
@@ -25,7 +32,7 @@ consuming_start_time = time.perf_counter()
 # res = model.generate(input="asr_example.wav", batch_size_s=300, hotword="魔搭")
 # res = model.generate(input="123456.wav", batch_size_s=300, hotword="魔搭")
 res = model.generate(
-    input="7wyqx-pgxhv.mp3",
+    input="asr_train_example.mp3",
     batch_size_s=300,
     hotword="问界 80\n电瓶 100\n保修 100\n问界店 100\nM7\nM5\nM9",
 )
@@ -46,7 +53,7 @@ for one in sentence_info:
     if spk == one["spk"]:
         content = content + one["text"]
     else:
-        text = f'角色{spk + 1} : {content} -- 时长:{total_time}ms'
+        text = f"角色{spk + 1} : {content} -- 时长:{total_time}ms"
         print(text)
         write_text(text)
         total_time = 0
@@ -54,7 +61,7 @@ for one in sentence_info:
         spk = one["spk"]
 
 if content is not None:
-    text = f'角色{spk + 1} : {content} -- 时长:{total_time}ms'
+    text = f"角色{spk + 1} : {content} -- 时长:{total_time}ms"
     print(text)
     write_text(text)
 
