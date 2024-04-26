@@ -5,7 +5,9 @@ import funasr_service
 
 # paraformer-zh is a multi-functional asr model
 # use vad, punc, spk or not as you need
+
 model = AutoModel(
+
     # model="paraformer-zh",
     # model="paraformer-zh-spk",
     model="iic/speech_paraformer-large-vad-punc-spk_asr_nat-zh-cn",
@@ -13,9 +15,10 @@ model = AutoModel(
     vad_model="fsmn-vad",
     # punc_model="ct-punc-c",
     punc_model="ct-punc",
-    # spk_model="cam++",
-    spk_model="iic/speech_campplus_speaker-diarization_common",
-    spk_model_revision="v1.0.0",
+    spk_model="cam++",
+    # spk_model="iic/speech_eres2net_sv_zh-cn_16k-common",
+    # spk_model="iic/speech_campplus_speaker-diarization_common",
+    # spk_model_revision="v1.0.0",
     # spk_model="iic/speech_eres2net-large_speaker-diarization_common",
     # openai_model="Whisper-large-v3",
     ncpu=8,
