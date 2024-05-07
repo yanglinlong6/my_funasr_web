@@ -18,8 +18,7 @@ model = AutoModel(
     spk_model="cam++",
     ncpu=2,
     device="cpu",
-    batch_size_s=1,
-    batch_size_threshold_s=60 * 60
+    batch_size=1,
     #     model="iic/speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
     #     vad_model="iic/speech_fsmn_vad_zh-cn-16k-common-pytorch",
     #     punc_model="iic/punc_ct-transformer_cn-en-common-vocab471067-large",
@@ -45,12 +44,14 @@ class FunasrService(object):
 
     @timeit
     def transform(self):
-        res = model.generate(input=self.path, batch_size_s=1,
+        res = model.generate(input=self.path,
+                             batch_size_s=1,
+                             batch_size_threshold_s=60 * 60,
                              hotword="问界 100\n质保经理 100\n易损易耗件 100\n电瓶 100\nM5 100\nM7 100\nM9 100\n石子 100"
                                      "\n橡胶棒 100\n电子助力泵 100\n电子真空助力泵 100\n充电桩 100\n密封圈 100\n4S店 100\n老化 100"
                                      "\n打死 100\n油车 100\n电车 100\n备忘录 100\n自费 100\n胶套求成密封圈 100\n安信无忧 100"
                                      "\n全车易损耗件 100\n厂家 100\n喷漆 100\n封釉 100\n雾化 100\n里程 100\n延保 100\n外地牌 100"
-                                     "\n轮胎 100\n胶条 100\n漆面 100\n充电接口 100\n车衣 100\n传动车身 100")
+                                     "\n轮胎 100\n胶条 100\n漆面 100\n充电接口 100\n车衣 100\n传动车身 100\n喜提新车 100")
         # print(res)
         return res
 
@@ -118,7 +119,7 @@ def deal_worker(task_id: str):
             return
         sentence_info = output_res[0]["sentence_info"]
         json_output = fine_grained_transform_output(sentence_info)
-        log.info("json_output: %s" % json_output)
+        # log.info("json_output: %s" % json_output)
         execute_time = time.perf_counter() - consuming_start_time
         funasr_db.update_ali_asr_model_res(task_id, json_output, int((execute_time * 1000)))
         log.info(

@@ -8,17 +8,21 @@ import funasr_service
 model = AutoModel(
     # model="paraformer-zh",
     # model="paraformer-zh-spk",
-    model="iic/speech_paraformer-large-vad-punc-spk_asr_nat-zh-cn",
-    model_revision="v2.0.4",
+    model="c:/Users/chizw/.cache/modelscope/hub/iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-Common-vocab8404-pytorch",
+    # model="c:/Users/chizw/.cache/modelscope/hub/iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-Common-vocab8404-pytorch",
+    # model_revision="v2.0.4",
     vad_model="fsmn-vad",
     # punc_model="ct-punc-c",
     punc_model="ct-punc",
     # spk_model="cam++",
-    spk_model="iic/speech_campplus_speaker-diarization_common",
-    spk_model_revision="v1.0.0",
+    spk_model="iic/speech_eres2net_sv_zh-cn_16k-common",
+    # spk_model="cam++",
+    # spk_model_revision="v1.0.0",
     # spk_model="iic/speech_eres2net-large_speaker-diarization_common",
     # openai_model="Whisper-large-v3",
-    ncpu=8,
+    ncpu=2,
+    device="cpu",
+    batch_size=1,
 )
 
 
@@ -32,9 +36,14 @@ consuming_start_time = time.perf_counter()
 # res = model.generate(input="asr_example.wav", batch_size_s=300, hotword="魔搭")
 # res = model.generate(input="123456.wav", batch_size_s=300, hotword="魔搭")
 res = model.generate(
-    input="asr_train_example.mp3",
-    batch_size_s=300,
-    hotword="问界 80\n电瓶 100\n保修 100\n问界店 100\nM7\nM5\nM9",
+    input="https://glsk-oss.oss-cn-shenzhen.aliyuncs.com/quality/7cf068ad-2592-4033-93c0-02c9b2735189.mp3",
+    batch_size_s=1,
+    batch_size_threshold_s=60 * 60,
+    hotword="问界 100\n质保经理 100\n易损易耗件 100\n电瓶 100\nM5 100\nM7 100\nM9 100\n石子 100"
+            "\n橡胶棒 100\n电子助力泵 100\n电子真空助力泵 100\n充电桩 100\n密封圈 100\n4S店 100\n老化 100"
+            "\n打死 100\n油车 100\n电车 100\n备忘录 100\n自费 100\n胶套求成密封圈 100\n安信无忧 100"
+            "\n全车易损耗件 100\n厂家 100\n喷漆 100\n封釉 100\n雾化 100\n里程 100\n延保 100\n外地牌 100"
+            "\n轮胎 100\n胶条 100\n漆面 100\n充电接口 100\n车衣 100\n传动车身 100\n喜提新车 100",
 )
 print(f"res:{res}")
 sentence_info = res[0]["sentence_info"]
@@ -67,7 +76,6 @@ if content is not None:
 
 res = funasr_service.fine_grained_transform_output(sentence_info)
 print(res)
-
 
 consuming_end_time = time.perf_counter()
 print(

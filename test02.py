@@ -5,11 +5,11 @@ from funasr import AutoModel
 # use vad, punc, spk or not as you need
 model = AutoModel(
     model="paraformer-zh",
-    vad_model="fsmn-vad",
-    punc_model="ct-punc-c",
-    spk_model="cam++",
+    # vad_model="fsmn-vad",
+    # punc_model="ct-punc-c",
+    # spk_model="cam++",
     # openai_model="Whisper-large-v3",
-    ncpu=8,
+    # ncpu=8,
 )
 
 
@@ -20,6 +20,9 @@ def write_text(text):
 
 
 consuming_start_time = time.perf_counter()
+
+res = model.export(quantize=False)
+print(res)
 # res = model.generate(input="asr_example.wav", batch_size_s=300, hotword="魔搭")
 # res = model.generate(input="123456.wav", batch_size_s=300, hotword="魔搭")
 # res = model.generate(
@@ -27,8 +30,8 @@ consuming_start_time = time.perf_counter()
 #     batch_size_s=300,
 #     hotword="问界 80\n电瓶 100\n保修 100\n问界店 100\nM7\nM5\nM9",
 # )
-res=model.export(input="北京店1-2024-02-29_14.58.11.MP3")
-print(f"res:{res}")
+# res=model.export(input="北京店1-2024-02-29_14.58.11.MP3")
+# print(f"res:{res}")
 # sentence_info = res[0]["sentence_info"]
 # print(f"res_sentence_info:{sentence_info}")
 # # print(res[0]["sentence_info"])

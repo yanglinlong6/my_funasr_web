@@ -16,11 +16,33 @@ from mysql_service import funasr_db
 #     value = message.value
 #     print(f"Key: {key}, Value: {value}")
 
-datas = ['0f4ba9a0-e7f6-11ee-b77c-b083fec01e48']
+datas = ['50457010-0625-11ef-bfcc-b083fec01e48',
+         '5049b706-0625-11ef-bfcc-b083fec01e48']
 
-for task_id in datas:
-    sql_res = funasr_db.select_ali_asr_model_res(task_id)
-    url = sql_res[0]["file_url"]
-    output_res = funasr_service.FunasrService(url).transform()
-    res = funasr_service.fine_grained_transform_output(output_res[0]["sentence_info"])
-    print(res)
+
+def not_insert_run():
+    for task_id in datas:
+        out_put: str
+        if task_id.find("/") != -1:
+            output_res = funasr_service.FunasrService(task_id).transform()
+        else:
+            sql_res = funasr_db.select_ali_asr_model_res(task_id)
+            url = sql_res[0]["file_url"]
+            output_res = funasr_service.FunasrService(url).transform()
+        res = funasr_service.fine_grained_transform_output(output_res[0]["sentence_info"])
+        print(res)
+
+
+def insert_run():
+    for task_id in datas:
+        funasr_service.deal_worker(task_id)
+
+
+def run():
+    url = 'https://glsk-oss.oss-cn-shenzhen.aliyuncs.com/quality/7cf068ad-2592-4033-93c0-02c9b2735189.mp3'
+    res = funasr_service.FunasrService(url).transform
+    print(f"res:{str(res)}")
+    # print(f"sentence_info:{funasr_service.fine_grained_transform_output(res[0]['sentence_info'])}")
+
+
+insert_run()
