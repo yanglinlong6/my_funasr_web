@@ -49,6 +49,8 @@ class MultiThreadKafka(object):
             bootstrap_servers=ConfigInfo.kafka_consumer_bootstrap_servers,  # Kafka broker 的地址
             group_id=ConfigInfo.kafka_consumer_group_id,  # 消费者组 ID
             auto_offset_reset=ConfigInfo.kafka_consumer_auto_offset_reset,  # 从最早的消息开始消费
+            request_timeout_ms=3000000,
+            fetch_max_wait_ms=300000,
         )
         tp = TopicPartition(ConfigInfo.kafka_consumer_analysis_topic, self.seek)
         consumer.assign([tp])
