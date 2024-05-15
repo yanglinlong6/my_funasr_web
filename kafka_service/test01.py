@@ -16,8 +16,7 @@ from mysql_service import funasr_db
 #     value = message.value
 #     print(f"Key: {key}, Value: {value}")
 
-datas = ['50457010-0625-11ef-bfcc-b083fec01e48',
-         '5049b706-0625-11ef-bfcc-b083fec01e48']
+datas = ['88d4ac0e-11ea-11ef-8a60-b083fec01e48']
 
 
 def not_insert_run():
@@ -29,7 +28,7 @@ def not_insert_run():
             sql_res = funasr_db.select_ali_asr_model_res(task_id)
             url = sql_res[0]["file_url"]
             output_res = funasr_service.FunasrService(url).transform()
-        res = funasr_service.fine_grained_transform_output(output_res[0]["sentence_info"])
+        res = funasr_service.simple_transform_output(output_res[0]["sentence_info"])
         print(res)
 
 

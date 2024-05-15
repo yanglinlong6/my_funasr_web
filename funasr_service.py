@@ -12,10 +12,13 @@ from mysql_service import funasr_db
 # use vad, punc, spk or not as you need
 
 model = AutoModel(
-    model="paraformer-zh",
+    model="iic/speech_paraformer-large-vad-punc-spk_asr_nat-zh-cn",
+    model_revision="v2.0.4",
     vad_model="fsmn-vad",
     punc_model="ct-punc-c",
     spk_model="cam++",
+    # spk_model="iic/speech_campplus_speaker-diarization_common",
+    # spk_model="damo/speech_campplus_speaker-diarization_common",
     ncpu=2,
     device="cpu",
     batch_size=1,
@@ -99,11 +102,12 @@ def deal_worker(task_id: str):
         if output_data is not None:
             return
         exception_msg = sql_res[0]["exception_msg"]
-        if exception_msg is not None or exception_msg == "list index out of range" \
-                or exception_msg == "Unspecified internal error." \
-                or exception_msg == "local variable 'raw_text' referenced before assignment":
-            funasr_db.update_ali_asr_model_res_skip(task_id)
-            return
+        if exception_msg is not None:
+            if exception_msg == "list index out of range" \
+                    or exception_msg == "Unspecified internal error." \
+                    or exception_msg == "local variable 'raw_text' referenced before assignment":
+                funasr_db.update_ali_asr_model_res_skip(task_id)
+                return
         funasr_db.update_process_task(task_id, str(multiprocessing.current_process().name))
         url = sql_res[0]["file_url"]
         if url == "" or len(url) < 1 or not url.startswith("http"):
@@ -140,6 +144,15 @@ def fine_grained_transform_output(sentence_info):
         output.append(model_output(one["spk"], one["start"], duration, one["text"]).to_dict())
     json_output = json.dumps(output, ensure_ascii=False)
     json_output = json_output.replace("m 五", "M5").replace("m 七", "M7").replace("m 九", "M9")
+    return json_output
+
+
+def simple_transform_output(sentence_info):
+    output = []
+    for one in sentence_info:
+        output.append((str(one["spk"]) + ":" + one["text"] + '\n'))
+    json_output = json.dumps(output, ensure_ascii=False)
+    json_output = json_output.replace(" m 五", "M5").replace(" m 七", "M7").replace(" m 九", "M9")
     return json_output
 
 
