@@ -2,7 +2,7 @@ class Config:
     DEBUG = False
     env = 'test'
     # 数据库连接配置
-    host='common.db.glsx.com'
+    host='192.168.1.39'
     port = 3306
     user = 'wechat_user'
     password = 'b4WRTkl'

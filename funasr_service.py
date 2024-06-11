@@ -12,13 +12,21 @@ from mysql_service import funasr_db
 # use vad, punc, spk or not as you need
 
 model = AutoModel(
-    model="iic/speech_paraformer-large-vad-punc-spk_asr_nat-zh-cn",
-    model_revision="v2.0.4",
+    # model='iic/speech_UniASR_asr_2pass-cantonese-CHS-16k-common-vocab1468-tensorflow1-online',
+    # model='iic/speech_UniASR_asr_2pass-cantonese-CHS-16k-common-vocab1468-tensorflow1-offline',
+    # model="damo/speech_UniASR_asr_2pass-cantonese-CHS-16k-common-vocab1468-tensorflow1-online",
+    # decoding_model="offline",
+    # model_revision="v2.0.4",
+    model="iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+    # model="iic/speech_paraformer-large-vad-punc-spk_asr_nat-zh-cn",
+    # model_revision='v1.0.1',
     vad_model="fsmn-vad",
     punc_model="ct-punc-c",
     spk_model="cam++",
     # spk_model="iic/speech_campplus_speaker-diarization_common",
     # spk_model="damo/speech_campplus_speaker-diarization_common",
+    # spk_model="iic/speech_campplus_sv_zh-cn_16k-common",
+    spk_model_revision="v2.0.2",
     ncpu=2,
     device="cpu",
     batch_size=1,
