@@ -17,7 +17,9 @@ model = AutoModel(
     # model="damo/speech_UniASR_asr_2pass-cantonese-CHS-16k-common-vocab1468-tensorflow1-online",
     # decoding_model="offline",
     # model_revision="v2.0.4",
-    model="iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
+    model="dengcunqin/speech_seaco_paraformer_large_asr_nat-zh-cantonese-en-16k-common-vocab11666-pytorch",
+    model_revision="master",
+    # model="iic/speech_seaco_paraformer_large_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
     # model="iic/speech_paraformer-large-vad-punc-spk_asr_nat-zh-cn",
     # model_revision='v1.0.1',
     vad_model="fsmn-vad",
@@ -26,7 +28,10 @@ model = AutoModel(
     # spk_model="iic/speech_campplus_speaker-diarization_common",
     # spk_model="damo/speech_campplus_speaker-diarization_common",
     # spk_model="iic/speech_campplus_sv_zh-cn_16k-common",
-    spk_model_revision="v2.0.2",
+    vad_model_revision="master",
+    punc_model_revision="master",
+    spk_model_revision="master",
+    # spk_model_revision="v2.0.2",
     ncpu=2,
     device="cpu",
     batch_size=1,
@@ -151,7 +156,10 @@ def fine_grained_transform_output(sentence_info):
         duration = one["end"] - one["start"]
         output.append(model_output(one["spk"], one["start"], duration, one["text"]).to_dict())
     json_output = json.dumps(output, ensure_ascii=False)
-    json_output = json_output.replace("m 五", "M5").replace("m 七", "M7").replace("m 九", "M9")
+    json_output = json_output.replace("m 五", "M5").replace("m 七", "M7").replace("m 九", "M9").replace("8年", "八年") \
+        .replace("3个月", "三个月").replace("5千公里", "五千公里").replace("1年", "一年").replace("1万公里", "一万公里") \
+        .replace("4年", "四年").replace("5年", "五年").replace("100000公里", "十万公里").replace("6年", "六年") \
+        .replace("12万", "十二万").replace("16万", "十六万")
     return json_output
 
 
