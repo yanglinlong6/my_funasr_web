@@ -7,6 +7,7 @@ from log.logger import log
 import json
 import traceback
 from mysql_service import funasr_db
+import gc
 
 # paraformer-zh is a multi-functional asr model
 # use vad, punc, spk or not as you need
@@ -32,7 +33,8 @@ model = AutoModel(
     punc_model_revision="master",
     spk_model_revision="master",
     # spk_model_revision="v2.0.2",
-    ncpu=2,
+    ncpu=4,
+    ngpu=0,
     device="cpu",
     batch_size=1,
     #     model="iic/speech_paraformer-large-vad-punc_asr_nat-zh-cn-16k-common-vocab8404-pytorch",
@@ -143,6 +145,8 @@ def deal_worker(task_id: str):
             f"Function create_upload_file executed in {execute_time} s"
         )
         log.info(f"Worker {task_id} finished.")
+        # 强制进行垃圾回收
+        gc.collect()
     except Exception as e:
         log.error(f"Worker error：{traceback.format_exc()}")
         funasr_db.update_ali_asr_model_res_fail(task_id, str(e), traceback.format_exc())
