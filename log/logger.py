@@ -32,4 +32,5 @@ def setup_logging(log_file):
 
     return logger
 
-log=setup_logging('%s/funasr_temp.log' % "/app/soft/python_project/audio_dev/logs")
+# log=setup_logging('%s/funasr_temp.log' % "/app/soft/python_project/audio_dev/logs")
+log = setup_logging("./funasr_temp.log")
